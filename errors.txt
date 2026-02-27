@@ -1,0 +1,14 @@
+lib/ai/router.ts(34,56): error TS2352: Conversion of type '{ apiKey: string; }' to type 'undefined' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+lib/ai/router.ts(34,56): error TS2554: Expected 1 arguments, but got 2.
+lib/ai/router.ts(34,110): error TS2493: Tuple type '[modelId: OpenAIResponsesModelId]' of length '1' has no element at index '1'.
+lib/ai/router.ts(37,59): error TS2352: Conversion of type '{ apiKey: string; }' to type 'undefined' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+lib/ai/router.ts(37,59): error TS2554: Expected 1 arguments, but got 2.
+lib/ai/router.ts(37,116): error TS2493: Tuple type '[modelId: AnthropicMessagesModelId]' of length '1' has no element at index '1'.
+lib/ai/router.ts(40,56): error TS2352: Conversion of type '{ apiKey: string; }' to type 'undefined' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+lib/ai/router.ts(40,56): error TS2554: Expected 1 arguments, but got 2.
+lib/ai/router.ts(40,110): error TS2493: Tuple type '[modelId: GoogleGenerativeAIModelId]' of length '1' has no element at index '1'.
+lib/ai/router.ts(47,43): error TS2339: Property 'promptTokens' does not exist on type 'LanguageModelUsage'.
+lib/ai/router.ts(48,44): error TS2339: Property 'completionTokens' does not exist on type 'LanguageModelUsage'.
+lib/crypto.ts(1,19): error TS7016: Could not find a declaration file for module 'node-forge'. 'C:/Users/tarik/OneDrive/Masa├╝st├╝/synorq/node_modules/.pnpm/node-forge@1.3.3/node_modules/node-forge/lib/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/node-forge` if it exists or add a new declaration (.d.ts) file containing `declare module 'node-forge';`
+lib/stripe/client.ts(4,5): error TS2322: Type '"2025-01-27.acacia"' is not assignable to type '"2026-02-25.clover"'.
