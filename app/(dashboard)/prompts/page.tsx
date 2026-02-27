@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import Header from '@/components/dashboard/Header';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
-import type { Prompt } from '@/types';
+import PromptGrid from '@/components/prompts/PromptGrid';
 
 export default async function PromptsPage() {
     const supabase = await createClient();
@@ -19,70 +19,44 @@ export default async function PromptsPage() {
 
     if (!workspace) redirect('/dashboard');
 
-    const { data: prompts } = await supabase
+    const { data: prompts, error } = await supabase
         .from('prompts')
         .select('*')
         .eq('workspace_id', workspace.id)
         .order('created_at', { ascending: false });
 
+    if (error) {
+        return (
+            <div className="h-full flex flex-col">
+                <Header title="Prompt Kütüphanesi" />
+                <div className="flex-1 p-8 text-center text-red-400">
+                    Promptlar yüklenirken hata oluştu.
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div>
-            <Header title="Promptlar" />
-            <div className="p-8">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h2 className="text-white text-2xl font-bold">Prompt Kütüphanesi</h2>
-                        <p className="text-slate-400 mt-1">{prompts?.length ?? 0} prompt</p>
+        <div className="h-full flex flex-col">
+            <Header title="Prompt Kütüphanesi" />
+            <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div className="flex items-center justify-between mx-auto max-w-6xl mb-8">
+                    <div className="flex items-center gap-3">
+                        <h2 className="text-2xl font-bold text-white">Tüm Promptlar</h2>
+                        <span className="bg-slate-800 text-slate-300 font-medium px-2.5 py-0.5 rounded-full text-sm border border-slate-700">
+                            {prompts?.length || 0}
+                        </span>
                     </div>
                     <Link
                         href="/prompts/new"
-                        id="new-prompt-btn"
-                        className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
                     >
-                        <Plus size={16} />
-                        Yeni Prompt
+                        <Plus size={18} />
+                        New Prompt
                     </Link>
                 </div>
 
-                {!prompts || prompts.length === 0 ? (
-                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-16 text-center">
-                        <p className="text-slate-400 mb-4">Henüz prompt yok.</p>
-                        <Link href="/prompts/new" className="text-purple-400 hover:text-purple-300 text-sm">
-                            İlk promptu oluştur →
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {prompts.map((prompt: Prompt) => (
-                            <div
-                                key={prompt.id}
-                                className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors"
-                            >
-                                <div className="flex items-start justify-between mb-3">
-                                    <div>
-                                        <h3 className="text-white font-medium">{prompt.name}</h3>
-                                        <p className="text-slate-500 text-xs mt-0.5">
-                                            v{prompt.version} • {new Date(prompt.created_at).toLocaleDateString('tr-TR')}
-                                        </p>
-                                    </div>
-                                    {prompt.tags && prompt.tags.length > 0 && (
-                                        <div className="flex gap-1 flex-wrap">
-                                            {prompt.tags.slice(0, 2).map((tag) => (
-                                                <span
-                                                    key={tag}
-                                                    className="bg-purple-900/30 text-purple-400 text-xs px-2 py-0.5 rounded-full border border-purple-700/30"
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                <p className="text-slate-400 text-sm line-clamp-3">{prompt.content}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                <PromptGrid prompts={prompts || []} />
             </div>
         </div>
     );

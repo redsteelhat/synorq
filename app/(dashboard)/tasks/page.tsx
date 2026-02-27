@@ -4,23 +4,7 @@ import Header from '@/components/dashboard/Header';
 import Link from 'next/link';
 import { Plus, ArrowRight, ListTodo } from 'lucide-react';
 
-function timeAgo(dateString: string) {
-    const now = new Date();
-    const past = new Date(dateString);
-    const diffMs = now.getTime() - past.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 1) return 'Az önce';
-    if (diffMins < 60) return `${diffMins} dk önce`;
-
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} saat önce`;
-
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays} gün önce`;
-
-    return past.toLocaleDateString('tr-TR');
-}
+import { timeAgo } from '@/lib/utils';
 
 export default async function TasksPage() {
     const supabase = await createClient();

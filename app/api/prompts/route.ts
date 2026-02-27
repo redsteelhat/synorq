@@ -28,11 +28,19 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Workspace bulunamadı' }, { status: 403 });
         }
 
-        const { data: prompts, error } = await supabase
+        const search = searchParams.get('search');
+
+        let query = supabase
             .from('prompts')
             .select('*')
             .eq('workspace_id', workspaceId)
             .order('created_at', { ascending: false });
+
+        if (search) {
+            query = query.ilike('name', `%${search}%`);
+        }
+
+        const { data: prompts, error } = await query;
 
         if (error) throw error;
 
