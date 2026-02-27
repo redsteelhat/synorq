@@ -67,16 +67,27 @@ export async function POST(request: NextRequest) {
         let aiResult;
         let outputError: string | null = null;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
         try {
             const apiKey = decryptApiKey(task.ai_tools.api_key_encrypted!);
             aiResult = await runAI(
                 task.ai_tools.name as AIProvider,
                 task.ai_tools.model!,
                 apiKey,
-                promptContent
+                promptContent,
+                controller.signal
             );
         } catch (aiErr) {
             outputError = aiErr instanceof Error ? aiErr.message : 'AI çağrısı başarısız';
+            if (aiErr instanceof Error && aiErr.name === 'AbortError') {
+                outputError = 'Zaman aşımı: AI yanıtı 30 saniye içinde alınamadı.';
+            } else if (aiErr instanceof Error && aiErr.message.includes('AbortError')) {
+                outputError = 'Zaman aşımı: AI yanıtı 30 saniye içinde alınamadı.';
+            }
+        } finally {
+            clearTimeout(timeoutId);
         }
 
         // Output tablosuna kaydet

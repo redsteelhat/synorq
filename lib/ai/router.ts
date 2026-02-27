@@ -23,7 +23,9 @@ export async function runAI(
     provider: AIProvider,
     model: string,
     apiKey: string,
-    prompt: string
+    prompt: string,
+    abortSignal?: AbortSignal
+
 ): Promise<AIResult> {
     const startTime = Date.now();
 
@@ -32,13 +34,13 @@ export async function runAI(
 
         if (provider === 'openai') {
             const openaiClient = createOpenAI({ apiKey });
-            result = await generateText({ model: openaiClient(model), prompt });
+            result = await generateText({ model: openaiClient(model), prompt, abortSignal });
         } else if (provider === 'anthropic') {
             const anthropicClient = createAnthropic({ apiKey });
-            result = await generateText({ model: anthropicClient(model), prompt });
+            result = await generateText({ model: anthropicClient(model), prompt, abortSignal });
         } else if (provider === 'google') {
             const googleClient = createGoogleGenerativeAI({ apiKey });
-            result = await generateText({ model: googleClient(model), prompt });
+            result = await generateText({ model: googleClient(model), prompt, abortSignal });
         } else {
             throw new Error(`Desteklenmeyen AI provider: ${provider}`);
         }
