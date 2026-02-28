@@ -6,3 +6,48 @@
   - Environments: .env.local
 
    Creating an optimized production build ...
+ Ô£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/21) ...
+   Generating static pages (5/21) 
+   Generating static pages (10/21) 
+   Generating static pages (15/21) 
+ Ô£ô Generating static pages (21/21)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Ôöî ãÆ /                                    182 B          96.2 kB
+Ôö£ Ôùï /_not-found                          157 B          87.5 kB
+Ôö£ ãÆ /api/prompts                         0 B                0 B
+Ôö£ ãÆ /api/run                             0 B                0 B
+Ôö£ ãÆ /api/tasks                           0 B                0 B
+Ôö£ ãÆ /api/tasks/[id]                      0 B                0 B
+Ôö£ ãÆ /api/tools                           0 B                0 B
+Ôö£ ãÆ /api/tools/[id]                      0 B                0 B
+Ôö£ ãÆ /api/tools/test                      0 B                0 B
+Ôö£ ãÆ /api/workspace                       0 B                0 B
+Ôö£ ãÆ /costs                               157 B          87.5 kB
+Ôö£ ãÆ /dashboard                           183 B          96.2 kB
+Ôö£ Ôùï /login                               1.56 kB         154 kB
+Ôö£ ãÆ /onboarding                          4.94 kB         167 kB
+Ôö£ ãÆ /prompts                             2.25 kB         107 kB
+Ôö£ ãÆ /prompts/[id]                        1.04 kB         106 kB
+Ôö£ ãÆ /prompts/new                         2.35 kB         108 kB
+Ôö£ Ôùï /signup                              1.82 kB         154 kB
+Ôö£ ãÆ /tasks                               183 B          96.2 kB
+Ôö£ ãÆ /tasks/[id]                          1.73 kB         116 kB
+Ôö£ ãÆ /tasks/new                           3.24 kB        99.8 kB
+Ôöö ãÆ /tools                               16.4 kB         122 kB
++ First Load JS shared by all            87.3 kB
+  Ôö£ chunks/203-181ded388e2c971e.js       31.7 kB
+  Ôö£ chunks/4cbe4dde-e9252dfc412024e9.js  53.6 kB
+  Ôöö other shared chunks (total)          1.96 kB
+
+
+ãÆ Middleware                             73.9 kB
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+
