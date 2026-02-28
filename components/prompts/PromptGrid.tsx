@@ -55,7 +55,7 @@ export default function PromptGrid({ prompts }: { prompts: Prompt[] }) {
                 <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400">
                     <FileText size={32} />
                 </div>
-                <h3 className="text-white font-medium mb-2">Henüz prompt yok</h3>
+                <h3 className="text-white font-medium mb-2">Prompt kütüphanesi boş</h3>
                 <p className="text-slate-500 text-sm mb-6 max-w-sm">
                     Sık kullandığınız yapay zeka komutlarını buraya ekleyerek görevlerinizde hızlıca kullanabilirsiniz.
                 </p>
@@ -64,7 +64,7 @@ export default function PromptGrid({ prompts }: { prompts: Prompt[] }) {
                     className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
                 >
                     <PlusIcon />
-                    İlk promptunu oluştur
+                    İlk promptunu ekle
                 </Link>
             </div>
         );
@@ -88,7 +88,7 @@ export default function PromptGrid({ prompts }: { prompts: Prompt[] }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filtered.map(prompt => (
-                        <Link key={prompt.id} href={`/prompts/${prompt.id}`} className="group relative bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-5 flex flex-col gap-3 transition-all">
+                        <Link key={prompt.id} href={`/prompts/${prompt.id}`} className="group relative bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-5 flex flex-col gap-3 transition-colors duration-200">
                             <div className="flex items-start justify-between gap-2">
                                 <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors truncate">
                                     {prompt.name}
@@ -98,7 +98,7 @@ export default function PromptGrid({ prompts }: { prompts: Prompt[] }) {
                                 </span>
                             </div>
 
-                            <p className="text-sm font-mono text-slate-400 leading-relaxed max-h-16 overflow-hidden relative">
+                            <p className="text-sm font-mono text-slate-400 leading-relaxed max-h-16 overflow-hidden relative truncate">
                                 {prompt.content.slice(0, 120)}
                                 {prompt.content.length > 120 && '...'}
                             </p>

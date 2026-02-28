@@ -136,8 +136,8 @@ export default async function CostsPage() {
                             {breakdown.length === 0 ? (
                                 <div className="flex-1 flex items-center justify-center text-slate-500">Kayıtlı veri bulunamadı.</div>
                             ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-sm whitespace-nowrap">
+                                <div className="overflow-x-auto rounded-lg border border-slate-800">
+                                    <table className="min-w-[600px] w-full text-left text-sm whitespace-nowrap">
                                         <thead className="text-slate-400 border-b border-slate-800">
                                             <tr>
                                                 <th className="pb-3 font-medium">Yapay Zeka Aracı</th>
@@ -147,7 +147,7 @@ export default async function CostsPage() {
                                         </thead>
                                         <tbody className="divide-y divide-slate-800/50">
                                             {breakdown.map((item, i) => (
-                                                <tr key={i} className="hover:bg-slate-800/30 transition-colors">
+                                                <tr key={i} className="hover:bg-slate-800/50 transition-colors">
                                                     <td className="py-4 text-slate-200">{item.name}</td>
                                                     <td className="py-4 text-slate-400 text-center">{item.count}</td>
                                                     <td className="py-4 text-emerald-400 text-right font-mono">{formatCurrency(item.cost)}</td>

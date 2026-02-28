@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -10,7 +10,6 @@ import {
     Cpu,
     DollarSign,
     LogOut,
-    Menu,
     X
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -24,14 +23,38 @@ const navItems = [
     { href: '/costs', label: 'Costs', icon: DollarSign },
 ];
 
-export default function Sidebar({ userEmail }: { userEmail: string }) {
+interface SidebarProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
-    const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [userEmail, setUserEmail] = useState('');
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function fetchUserEmail() {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (isMounted) {
+                setUserEmail(user?.email || '');
+            }
+        }
+
+        fetchUserEmail();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     async function handleLogout() {
         const supabase = createClient();
         await supabase.auth.signOut();
+        onClose();
         router.push('/login');
         router.refresh();
     }
@@ -56,9 +79,9 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
                         <Link
                             key={href}
                             href={href}
-                            onClick={() => setIsMobileOpen(false)}
+                            onClick={onClose}
                             className={cn(
-                                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all group font-medium',
+                                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors duration-150 group font-medium',
                                 isActive
                                     ? 'bg-slate-800 text-white'
                                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -83,7 +106,7 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
+                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors duration-150"
                 >
                     <LogOut size={18} />
                     Logout
@@ -94,33 +117,27 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
 
     return (
         <>
-            {/* Mobile Hamburger toggle */}
-            <button
-                onClick={() => setIsMobileOpen(true)}
-                className="md:hidden fixed top-4 right-4 z-[60] p-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-md shadow-sm"
-            >
-                <Menu size={20} />
-            </button>
-
             {/* Mobile menu overlay */}
-            {isMobileOpen && (
-                <div
-                    className="fixed inset-0 bg-black/60 z-[60] md:hidden"
-                    onClick={() => setIsMobileOpen(false)}
+            {isOpen && (
+                <button
+                    type="button"
+                    aria-label="Menüyü kapat"
+                    className="fixed inset-0 z-50 bg-black/60 md:hidden"
+                    onClick={onClose}
                 />
             )}
 
             {/* Sidebar Desktop & Mobile */}
             <aside
                 className={cn(
-                    "fixed md:static inset-y-0 left-0 z-[70] flex flex-col w-[240px] bg-slate-900 border-r border-slate-800 transform transition-transform duration-300 ease-in-out shadow-xl md:shadow-none h-full",
-                    isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+                    'fixed inset-y-0 left-0 z-[60] flex h-full w-[240px] flex-col border-r border-slate-800 bg-slate-900 shadow-xl transition-transform duration-300 ease-in-out md:static md:z-auto md:translate-x-0 md:shadow-none',
+                    isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
                 )}
             >
                 {/* Mobile close button inside sidebar */}
-                {isMobileOpen && (
+                {isOpen && (
                     <button
-                        onClick={() => setIsMobileOpen(false)}
+                        onClick={onClose}
                         className="md:hidden absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
                     >
                         <X size={20} />

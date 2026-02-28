@@ -36,7 +36,7 @@ export default function CopyButton({ text, className }: CopyButtonProps) {
             {copied ? (
                 <>
                     <Check size={14} />
-                    Kopyalandı
+                    ✓ Kopyalandı
                 </>
             ) : (
                 <>

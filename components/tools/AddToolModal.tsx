@@ -42,7 +42,17 @@ const PROVIDERS = [
     }
 ];
 
-export default function AddToolModal({ workspaceId }: { workspaceId: string }) {
+interface AddToolModalProps {
+    workspaceId: string;
+    triggerLabel?: string;
+    triggerClassName?: string;
+}
+
+export default function AddToolModal({
+    workspaceId,
+    triggerLabel = 'Araç Ekle',
+    triggerClassName,
+}: AddToolModalProps) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
@@ -152,9 +162,9 @@ export default function AddToolModal({ workspaceId }: { workspaceId: string }) {
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                <button className={`flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${triggerClassName || ''}`}>
                     <Plus size={18} />
-                    Araç Ekle
+                    {triggerLabel}
                 </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] bg-slate-900 border-slate-800 text-white shadow-xl">

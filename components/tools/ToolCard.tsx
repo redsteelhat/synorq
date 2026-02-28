@@ -66,7 +66,7 @@ export default function ToolCard({ tool }: { tool: ToolPreview }) {
     };
 
     return (
-        <div className={`bg-slate-900 border ${isActive ? 'border-indigo-500/30' : 'border-slate-800'} rounded-xl p-5 shadow-sm transition-all flex flex-col gap-4 relative overflow-hidden group`}>
+        <div className={`bg-slate-900 border ${isActive ? 'border-indigo-500/30' : 'border-slate-800'} hover:border-indigo-500/50 rounded-xl p-5 shadow-sm transition-colors duration-200 flex flex-col gap-4 relative overflow-hidden group`}>
 
             <div className="flex justify-between items-start">
                 <div className="flex gap-2.5 items-center bg-slate-950 px-2 py-1 rounded-md border border-slate-800 w-fit">

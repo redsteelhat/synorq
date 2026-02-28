@@ -9,7 +9,7 @@ export default async function Header({ title }: HeaderProps) {
     const { data: { user } } = await supabase.auth.getUser();
 
     return (
-        <header className="h-16 bg-slate-900/50 border-b border-slate-800 px-8 flex items-center justify-between">
+        <header className="h-16 bg-slate-900/50 border-b border-slate-800 pl-16 pr-4 md:px-8 flex items-center justify-between">
             <h1 className="text-white font-semibold text-lg">{title}</h1>
             <div className="flex items-center gap-3">
                 <div className="text-right">

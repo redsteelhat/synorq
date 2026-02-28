@@ -59,11 +59,11 @@ export default async function ToolsPage() {
                             <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400">
                                 <Cpu size={32} />
                             </div>
-                            <h3 className="text-white font-medium mb-2">Henüz araç bağlanmadı</h3>
+                            <h3 className="text-white font-medium mb-2">AI aracı bağlanmadı</h3>
                             <p className="text-slate-500 text-sm mb-6 max-w-sm">
                                 OpenAI, Anthropic veya Google gibi yapay zeka araçlarını çalışma alanınıza bağlayıp otomasyonlarınıza entegre edin.
                             </p>
-                            <AddToolModal workspaceId={workspace.id} />
+                            <AddToolModal workspaceId={workspace.id} triggerLabel="Araç ekle" />
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
