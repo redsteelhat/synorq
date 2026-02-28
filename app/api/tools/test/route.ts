@@ -6,11 +6,22 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
 
+function cleanupRateLimitMap() {
+    const now = Date.now();
+    rateLimitMap.forEach((data, ip) => {
+        if (now - data.timestamp > 60 * 1000) {
+            rateLimitMap.delete(ip);
+        }
+    });
+}
+
 export async function POST(request: NextRequest) {
     const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
     const now = Date.now();
     const windowMs = 60 * 1000;
     const maxRequests = 10;
+
+    cleanupRateLimitMap();
 
     const requestData = rateLimitMap.get(ip);
     if (requestData) {

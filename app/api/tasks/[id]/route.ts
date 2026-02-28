@@ -62,6 +62,16 @@ export async function PATCH(
         }
 
         const { id } = await params;
+        
+        // Ownership check
+        const { data: workspaces } = await supabase.from('workspaces').select('id').eq('owner_id', user.id);
+        const workspaceIds = workspaces?.map(w => w.id) || [];
+        
+        const { data: taskCheck, error: checkErr } = await supabase.from('tasks').select('workspace_id').eq('id', id).single();
+        if (checkErr || !taskCheck || !workspaceIds.includes(taskCheck.workspace_id)) {
+            return NextResponse.json({ error: 'Erişim yetkiniz yok veya görev bulunamadı' }, { status: 403 });
+        }
+
         const body = await request.json();
         const { title, status } = body;
 
@@ -100,6 +110,15 @@ export async function DELETE(
         }
 
         const { id } = await params;
+
+        // Ownership check
+        const { data: workspaces } = await supabase.from('workspaces').select('id').eq('owner_id', user.id);
+        const workspaceIds = workspaces?.map(w => w.id) || [];
+        
+        const { data: taskCheck, error: checkErr } = await supabase.from('tasks').select('workspace_id').eq('id', id).single();
+        if (checkErr || !taskCheck || !workspaceIds.includes(taskCheck.workspace_id)) {
+            return NextResponse.json({ error: 'Erişim yetkiniz yok veya görev bulunamadı' }, { status: 403 });
+        }
 
         const { error } = await supabase
             .from('tasks')
