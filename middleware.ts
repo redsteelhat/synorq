@@ -34,11 +34,53 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl;
 
+    const isProtectedRoute =
+        pathname.startsWith('/dashboard') ||
+        pathname.startsWith('/tasks') ||
+        pathname.startsWith('/prompts') ||
+        pathname.startsWith('/tools') ||
+        pathname.startsWith('/costs');
+
     // Dashboard route'larını koru
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/tasks') || pathname.startsWith('/prompts') || pathname.startsWith('/tools') || pathname.startsWith('/costs')) {
+    if (isProtectedRoute) {
         if (!user) {
             const url = request.nextUrl.clone();
             url.pathname = '/login';
+            return NextResponse.redirect(url);
+        }
+
+        const { data: workspace } = await supabase
+            .from('workspaces')
+            .select('id')
+            .eq('owner_id', user.id)
+            .limit(1)
+            .single();
+
+        if (!workspace) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/onboarding';
+            url.searchParams.set('step', '1');
+            return NextResponse.redirect(url);
+        }
+    }
+
+    if (pathname.startsWith('/onboarding')) {
+        if (!user) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/login';
+            return NextResponse.redirect(url);
+        }
+
+        const { data: workspace } = await supabase
+            .from('workspaces')
+            .select('id')
+            .eq('owner_id', user.id)
+            .limit(1)
+            .single();
+
+        if (workspace) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/dashboard';
             return NextResponse.redirect(url);
         }
     }
@@ -46,7 +88,22 @@ export async function middleware(request: NextRequest) {
     // Giriş yapmış kullanıcıyı login/signup'tan yönlendir
     if (user && (pathname === '/login' || pathname === '/signup')) {
         const url = request.nextUrl.clone();
-        url.pathname = '/dashboard';
+
+        // Eğer workspace'i yoksa onboarding'e at, varsa dashboard'a at
+        const { data: workspace } = await supabase
+            .from('workspaces')
+            .select('id')
+            .eq('owner_id', user.id)
+            .limit(1)
+            .single();
+
+        if (!workspace) {
+            url.pathname = '/onboarding';
+            url.searchParams.set('step', '1');
+        } else {
+            url.pathname = '/dashboard';
+        }
+
         return NextResponse.redirect(url);
     }
 
