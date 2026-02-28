@@ -5,15 +5,33 @@ import Header from '@/components/dashboard/Header';
 import StatCard from '@/components/dashboard/StatCard';
 import { CheckSquare, FileText, Cpu, DollarSign, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrency } from '@/lib/utils';
+
+interface DashboardOutputRow {
+    cost_usd: string | number | null;
+    created_at: string;
+    tasks?: {
+        ai_tools?: {
+            id?: string;
+            display_name?: string;
+        } | { id?: string; display_name?: string }[] | null;
+    } | { ai_tools?: { id?: string; display_name?: string } | { id?: string; display_name?: string }[] | null }[] | null;
+}
 
 async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: { workspaceId: string, workspaceName: string, workspacePlan: string }) {
     const supabase = await createClient();
 
     try {
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
         const pTasks = supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('workspace_id', workspaceId);
         const pTools = supabase.from('ai_tools').select('*', { count: 'exact', head: true }).eq('workspace_id', workspaceId).eq('is_active', true);
         const pPrompts = supabase.from('prompts').select('*', { count: 'exact', head: true }).eq('workspace_id', workspaceId);
-        const pCosts = supabase.from('outputs').select('cost_usd').eq('workspace_id', workspaceId);
+        const pCosts = supabase.from('outputs')
+            .select(`cost_usd, created_at, tasks(ai_tools(id, display_name))`)
+            .eq('workspace_id', workspaceId)
+            .gte('created_at', monthStart);
         const pRecent = supabase.from('tasks')
             .select(`id, title, status, created_at, ai_tools (display_name)`)
             .eq('workspace_id', workspaceId)
@@ -28,7 +46,33 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
         const activeTools = toolsRes.count ?? 0;
         const promptLibraryCount = promptsRes.count ?? 0;
 
-        const thisMonthCost = (costsRes.data ?? []).reduce((sum, r) => sum + Number(r.cost_usd || 0), 0);
+        const monthlyOutputs = (costsRes.data ?? []) as DashboardOutputRow[];
+        const thisMonthCost = monthlyOutputs.reduce((sum, row) => sum + Number(row.cost_usd || 0), 0);
+
+        const toolCostMap = new Map<string, { name: string; cost: number }>();
+        for (const output of monthlyOutputs) {
+            const cost = Number(output.cost_usd || 0);
+            const task = Array.isArray(output.tasks) ? output.tasks[0] : output.tasks;
+            const tool = task && task.ai_tools
+                ? (Array.isArray(task.ai_tools) ? task.ai_tools[0] : task.ai_tools)
+                : null;
+
+            const toolId = tool?.id || 'unknown';
+            const toolName = tool?.display_name || 'Bilinmeyen Araç';
+            const current = toolCostMap.get(toolId) || { name: toolName, cost: 0 };
+            current.cost += cost;
+            toolCostMap.set(toolId, current);
+        }
+
+        const topToolCosts = Array.from(toolCostMap.values())
+            .sort((a, b) => b.cost - a.cost)
+            .filter((item) => item.cost > 0)
+            .slice(0, 3)
+            .map((item) => ({
+                ...item,
+                pct: thisMonthCost > 0 ? (item.cost / thisMonthCost) * 100 : 0,
+            }));
+
         const recentTasks = recentRes.data ?? [];
 
         return (
@@ -71,72 +115,117 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
                     />
                 </div>
 
-                {/* Recent Tasks */}
-                <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-[#1E2A3A] flex items-center justify-between">
-                        <h3 className="text-[#F1F5F9] font-semibold text-sm">Recent Tasks</h3>
-                        <Link href="/tasks" className="btn-secondary px-3 py-1.5 text-xs">
-                            View All →
-                        </Link>
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden xl:col-span-1">
+                        <div className="px-6 py-4 border-b border-[#1E2A3A]">
+                            <h3 className="text-[#F1F5F9] font-semibold text-sm">Tool Bazlı Harcama (Bu Ay)</h3>
+                        </div>
+                        {topToolCosts.length === 0 ? (
+                            <div className="m-6 empty-state">
+                                <div className="empty-state-icon">
+                                    <DollarSign size={20} className="text-[#334155]" />
+                                </div>
+                                <p className="text-[#F1F5F9] font-medium mb-1">Henüz araç maliyeti yok</p>
+                                <p className="mx-auto mb-6 max-w-xs text-center text-sm text-[#64748B]">
+                                    Araç maliyet dağılımını görmek için görev çalıştırın.
+                                </p>
+                                <Link href="/tasks/new" className="btn-primary px-5">
+                                    İlk görevi çalıştır
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="p-6 space-y-4">
+                                {topToolCosts.map((tool, index) => (
+                                    <div key={`${tool.name}-${index}`} className="rounded-lg border border-[#1E2A3A] bg-[#080C14]/60 p-3">
+                                        <div className="mb-2 flex items-center justify-between gap-3">
+                                            <p className="truncate text-sm font-medium text-[#F1F5F9]">{tool.name}</p>
+                                            <p className="text-xs font-mono text-emerald-400">{formatCurrency(tool.cost)}</p>
+                                        </div>
+                                        <div className="mb-1 h-1.5 w-full overflow-hidden rounded-full bg-[#1E2A3A]">
+                                            <div
+                                                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-400"
+                                                style={{ width: `${Math.max(tool.pct, 2)}%` }}
+                                            />
+                                        </div>
+                                        <p className="text-[10px] uppercase tracking-wide text-[#64748B]">
+                                            {tool.pct.toFixed(1)}% of monthly spend
+                                        </p>
+                                    </div>
+                                ))}
+                                <Link href="/costs" className="btn-secondary w-full justify-center">
+                                    Detaylı Maliyet Analizi
+                                </Link>
+                            </div>
+                        )}
                     </div>
 
-                    {recentTasks.length === 0 ? (
-                        <div className="m-6 empty-state">
-                            <div className="empty-state-icon">
-                                <CheckSquare size={20} className="text-[#334155]" />
-                            </div>
-                            <p className="text-[#F1F5F9] font-medium mb-1">Henüz görev bulunmuyor</p>
-                            <p className="mx-auto mb-6 max-w-xs text-center text-sm text-[#64748B]">
-                                İlk otomasyon görevini oluşturup bu alanda çıktıları takip et.
-                            </p>
-                            <Link href="/tasks/new" className="btn-primary px-5">
-                                İlk görevi oluştur
+                    {/* Recent Tasks */}
+                    <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden xl:col-span-2">
+                        <div className="px-6 py-4 border-b border-[#1E2A3A] flex items-center justify-between">
+                            <h3 className="text-[#F1F5F9] font-semibold text-sm">Recent Tasks</h3>
+                            <Link href="/tasks" className="btn-secondary px-3 py-1.5 text-xs">
+                                View All →
                             </Link>
                         </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-[680px] w-full text-left text-sm whitespace-nowrap">
-                                <thead className="bg-[#080C14]">
-                                    <tr className="border-b border-[#1E2A3A]">
-                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Task</th>
-                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Tool</th>
-                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Date</th>
-                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold text-right">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {recentTasks.map((task: { id: string, title: string, status: string, created_at: string, ai_tools: { display_name: string } | { display_name: string }[] | null }) => {
-                                        let badgeColor = "bg-[#1E2A3A] text-[#64748B] border-[#2D3F55]";
-                                        const label = task.status;
-                                        if (task.status === 'done') {
-                                            badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                                        } else if (task.status === 'running') {
-                                            badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
-                                        } else if (task.status === 'failed') {
-                                            badgeColor = "bg-red-500/10 text-red-400 border-red-500/20";
-                                        }
 
-                                        const toolName = Array.isArray(task.ai_tools) ? task.ai_tools[0]?.display_name : task.ai_tools?.display_name;
+                        {recentTasks.length === 0 ? (
+                            <div className="m-6 empty-state">
+                                <div className="empty-state-icon">
+                                    <CheckSquare size={20} className="text-[#334155]" />
+                                </div>
+                                <p className="text-[#F1F5F9] font-medium mb-1">Henüz görev bulunmuyor</p>
+                                <p className="mx-auto mb-6 max-w-xs text-center text-sm text-[#64748B]">
+                                    İlk otomasyon görevini oluşturup bu alanda çıktıları takip et.
+                                </p>
+                                <Link href="/tasks/new" className="btn-primary px-5">
+                                    İlk görevi oluştur
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-[680px] w-full text-left text-sm whitespace-nowrap">
+                                    <thead className="bg-[#080C14]">
+                                        <tr className="border-b border-[#1E2A3A]">
+                                            <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Task</th>
+                                            <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Tool</th>
+                                            <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Date</th>
+                                            <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {recentTasks.map((task: { id: string, title: string, status: string, created_at: string, ai_tools: { display_name: string } | { display_name: string }[] | null }) => {
+                                            let badgeColor = "bg-[#1E2A3A] text-[#64748B] border-[#2D3F55]";
+                                            const label = task.status;
+                                            if (task.status === 'done') {
+                                                badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                                            } else if (task.status === 'running') {
+                                                badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                                            } else if (task.status === 'failed') {
+                                                badgeColor = "bg-red-500/10 text-red-400 border-red-500/20";
+                                            }
 
-                                        return (
-                                            <tr key={task.id} className="border-b border-[#1E2A3A]/50 row-hover">
-                                                <td className="px-6 py-4">
-                                                    <span className="font-medium text-[#F1F5F9]">{task.title}</span>
-                                                </td>
-                                                <td className="px-6 py-4 text-xs text-[#64748B]">{toolName || 'Araç seçilmedi'}</td>
-                                                <td className="px-6 py-4 text-xs text-[#64748B]">{new Date(task.created_at).toLocaleDateString('tr-TR')}</td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${badgeColor}`}>
-                                                        {label.toUpperCase()}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                            const toolName = Array.isArray(task.ai_tools) ? task.ai_tools[0]?.display_name : task.ai_tools?.display_name;
+
+                                            return (
+                                                <tr key={task.id} className="border-b border-[#1E2A3A]/50 row-hover">
+                                                    <td className="px-6 py-4">
+                                                        <span className="font-medium text-[#F1F5F9]">{task.title}</span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-xs text-[#64748B]">{toolName || 'Araç seçilmedi'}</td>
+                                                    <td className="px-6 py-4 text-xs text-[#64748B]">{new Date(task.created_at).toLocaleDateString('tr-TR')}</td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${badgeColor}`}>
+                                                            {label.toUpperCase()}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         );

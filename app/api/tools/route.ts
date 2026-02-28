@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url);
         const workspaceId = searchParams.get('workspaceId');
+        const status = searchParams.get('status') ?? 'all';
 
         if (!workspaceId) {
             return NextResponse.json({ error: 'workspaceId zorunludur' }, { status: 400 });
@@ -29,16 +30,26 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Workspace bulunamadı' }, { status: 403 });
         }
 
-        const { data: tools, error } = await supabase
+        let query = supabase
             .from('ai_tools')
             .select('id, workspace_id, name, display_name, model, is_active, created_at, api_key_encrypted')
-            .eq('workspace_id', workspaceId)
-            .order('created_at', { ascending: false });
+            .eq('workspace_id', workspaceId);
+
+        if (status === 'active') {
+            query = query.eq('is_active', true);
+        }
+
+        const { data: tools, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
 
         const safeTools = tools.map((tool) => {
             const { api_key_encrypted, ...rest } = tool;
+            const normalized = rest as typeof rest & { active?: boolean; enabled?: boolean };
+            const isActive = typeof rest.is_active === 'boolean'
+                ? rest.is_active
+                : Boolean(normalized.active ?? normalized.enabled);
+
             let keyPreview = '••••••••';
             try {
                 if (api_key_encrypted) {
@@ -50,11 +61,12 @@ export async function GET(request: NextRequest) {
             }
             return {
                 ...rest,
+                is_active: isActive,
                 key_preview: keyPreview
             };
         });
 
-        return NextResponse.json({ tools: safeTools });
+        return NextResponse.json({ tools: safeTools, data: safeTools });
     } catch (error) {
         console.error('Tools GET hatası:', error);
         return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

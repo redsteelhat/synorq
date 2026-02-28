@@ -4,6 +4,7 @@ import Header from '@/components/dashboard/Header';
 import StatCard from '@/components/dashboard/StatCard';
 import { DollarSign, Activity, Settings2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import DailyCostChart from '@/components/costs/DailyCostChart';
 
 interface JoinOutput {
     cost_usd: string | number | null;
@@ -116,7 +117,6 @@ export default async function CostsPage() {
     });
 
     const dailyData = Object.entries(last14Days).map(([date, cost]) => ({ date, cost }));
-    const maxDailyCost = Math.max(...dailyData.map(d => d.cost), 0.0001);
 
     return (
         <div className="h-full flex flex-col">
@@ -182,31 +182,7 @@ export default async function CostsPage() {
                         {/* Son 14 Gün Harcama Grafiği */}
                         <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 flex flex-col min-h-[400px]">
                             <h3 className="text-lg font-semibold text-[#F1F5F9] mb-6">Son 14 Gün Maliyeti</h3>
-                            <div className="flex-1 overflow-x-auto">
-                                <div className="grid min-w-[640px] grid-cols-14 gap-3 h-full items-end">
-                                {dailyData.map((d, i) => {
-                                    const barHeight = d.cost > 0
-                                        ? `${Math.max((d.cost / maxDailyCost) * 100, 2)}%`
-                                        : '2px';
-                                    const dateLabel = new Date(d.date).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
-
-                                    return (
-                                        <div key={i} className="flex flex-col items-center gap-2">
-                                            <div className="w-full max-w-[26px] h-44 rounded-full bg-[#1E2A3A] overflow-hidden flex items-end">
-                                                <div
-                                                    className="w-full rounded-full bg-gradient-to-t from-indigo-600 to-indigo-400 transition-all duration-500 min-h-[2px]"
-                                                    style={{ height: barHeight }}
-                                                />
-                                            </div>
-                                            <div className="font-mono text-[10px] text-[#334155]">{dateLabel}</div>
-                                            <div className="text-xs text-[#64748B] font-mono">
-                                                {d.cost > 0 ? formatCurrency(d.cost) : '$0.0000'}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                                </div>
-                            </div>
+                            <DailyCostChart data={dailyData} />
                         </div>
                     </div>
                 </div>
