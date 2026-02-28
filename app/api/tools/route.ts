@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { encryptApiKey } from '@/lib/crypto';
+import { encryptApiKey, decryptApiKey } from '@/lib/crypto';
 
 export async function GET(request: NextRequest) {
     try {
@@ -31,13 +31,30 @@ export async function GET(request: NextRequest) {
 
         const { data: tools, error } = await supabase
             .from('ai_tools')
-            .select('id, workspace_id, name, display_name, model, is_active, created_at')
+            .select('id, workspace_id, name, display_name, model, is_active, created_at, api_key_encrypted')
             .eq('workspace_id', workspaceId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        return NextResponse.json({ tools });
+        const safeTools = tools.map((tool) => {
+            const { api_key_encrypted, ...rest } = tool;
+            let keyPreview = '••••••••';
+            try {
+                if (api_key_encrypted) {
+                    const plain = decryptApiKey(api_key_encrypted);
+                    keyPreview += plain.slice(-4);
+                }
+            } catch {
+                keyPreview += 'HATA';
+            }
+            return {
+                ...rest,
+                key_preview: keyPreview
+            };
+        });
+
+        return NextResponse.json({ tools: safeTools });
     } catch (error) {
         console.error('Tools GET hatası:', error);
         return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

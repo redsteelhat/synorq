@@ -1,7 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Header from '@/components/dashboard/Header';
-import type { CostSummary } from '@/types';
+import StatCard from '@/components/dashboard/StatCard';
+import { DollarSign, Activity, Settings2 } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+
+interface JoinOutput {
+    cost_usd: string | number | null;
+    created_at: string;
+    tasks?: {
+        ai_tools?: {
+            display_name?: string;
+        } | { display_name?: string }[] | null;
+    } | { ai_tools?: { display_name?: string } | { display_name?: string }[] | null }[] | null;
+}
 
 export default async function CostsPage() {
     const supabase = await createClient();
@@ -17,74 +29,165 @@ export default async function CostsPage() {
 
     if (!workspace) redirect('/dashboard');
 
-    let costs: CostSummary = { totalCostUsd: 0, byTool: [], byDay: [] };
+    // Join ile tüm verileri sunucuya indirelim (veri artınca optimize edilmeli ama şimdilik en iyisi)
+    const { data: allOutputs } = await supabase
+        .from('outputs')
+        .select(`
+            cost_usd, 
+            created_at, 
+            tasks(ai_tools(display_name))
+        `)
+        .eq('workspace_id', workspace.id);
 
-    try {
-        const res = await fetch(
-            `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/costs?workspaceId=${workspace.id}`,
-            { cache: 'no-store' }
-        );
-        if (res.ok) costs = await res.json();
-    } catch {
-        // Hata varsa defaults kullan
-    }
+    const outputs: JoinOutput[] = (allOutputs as unknown as JoinOutput[]) || [];
+    const totalCost = outputs.reduce((sum, curr) => sum + (Number(curr.cost_usd) || 0), 0);
+
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisMonthCost = outputs
+        .filter(o => new Date(o.created_at) >= firstDayOfMonth)
+        .reduce((sum, curr) => sum + (Number(curr.cost_usd) || 0), 0);
+
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const { count: thisWeekTasks } = await supabase
+        .from('tasks')
+        .select('*', { count: 'exact', head: true })
+        .eq('workspace_id', workspace.id)
+        .gte('created_at', lastWeek.toISOString());
+
+    // d) Araç Breakdown
+    const toolStats = new Map<string, { count: number; cost: number }>();
+    outputs.forEach((o: JoinOutput) => {
+        const cost = Number(o.cost_usd) || 0;
+        let tName = 'Bilinmeyen Araç';
+
+        if (o.tasks) {
+            const task = Array.isArray(o.tasks) ? o.tasks[0] : o.tasks;
+            if (task && task.ai_tools) {
+                const aiTool = Array.isArray(task.ai_tools) ? task.ai_tools[0] : task.ai_tools;
+                if (aiTool && aiTool.display_name) {
+                    tName = aiTool.display_name;
+                }
+            }
+        }
+
+        const stats = toolStats.get(tName) || { count: 0, cost: 0 };
+        stats.count += 1;
+        stats.cost += cost;
+        toolStats.set(tName, stats);
+    });
+
+    const breakdown = Array.from(toolStats.entries())
+        .map(([name, stats]) => ({ name, ...stats }))
+        .sort((a, b) => b.cost - a.cost);
+
+    // e) Son 14 Gün Verisi
+    const last14Days = Array.from({ length: 14 })
+        .map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (13 - i));
+            return d.toISOString().split('T')[0];
+        })
+        .reduce((acc, date) => {
+            acc[date] = 0;
+            return acc;
+        }, {} as Record<string, number>);
+
+    outputs.forEach(o => {
+        const d = new Date(o.created_at).toISOString().split('T')[0];
+        if (last14Days.hasOwnProperty(d)) {
+            last14Days[d] += (Number(o.cost_usd) || 0);
+        }
+    });
+
+    const dailyData = Object.entries(last14Days).map(([date, cost]) => ({ date, cost }));
+    const maxDailyCost = Math.max(...dailyData.map(d => d.cost), 0.0001); // Sıfıra bölünmeyi önle
 
     return (
-        <div>
-            <Header title="Maliyetler" />
-            <div className="p-8">
-                <div className="mb-8">
-                    <h2 className="text-white text-2xl font-bold">Maliyet Analizi</h2>
-                    <p className="text-slate-400 mt-1">Token bazlı AI harcamaları</p>
-                </div>
+        <div className="h-full flex flex-col">
+            <Header title="Maliyet Analizi" />
+            <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div className="max-w-6xl mx-auto space-y-8">
 
-                {/* Total Cost */}
-                <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/10 border border-purple-700/30 rounded-2xl p-8 mb-8 text-center">
-                    <p className="text-slate-400 text-sm mb-2">Toplam Harcama</p>
-                    <p className="text-5xl font-bold text-white mb-1">
-                        ${costs.totalCostUsd.toFixed(4)}
-                    </p>
-                    <p className="text-slate-500 text-sm">Tüm zamanlar</p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* By Tool */}
-                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                        <h3 className="text-white font-semibold mb-4">Araç Bazlı Harcama</h3>
-                        {costs.byTool.length === 0 ? (
-                            <p className="text-slate-500 text-sm py-4 text-center">Veri yok</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {costs.byTool.map((item) => (
-                                    <div key={item.toolName} className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-white text-sm font-medium">{item.toolName}</p>
-                                            <p className="text-slate-500 text-xs">{item.taskCount} görev</p>
-                                        </div>
-                                        <span className="text-purple-400 font-mono text-sm">
-                                            ${item.costUsd.toFixed(4)}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                    {/* StatCards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <StatCard
+                            title="Toplam Harcama"
+                            value={formatCurrency(totalCost)}
+                            icon={DollarSign}
+                        />
+                        <StatCard
+                            title="Bu Ay Harcama"
+                            value={formatCurrency(thisMonthCost)}
+                            icon={Activity}
+                        />
+                        <StatCard
+                            title="Bu Hafta Görev"
+                            value={thisWeekTasks?.toString() || '0'}
+                            icon={Settings2}
+                        />
                     </div>
 
-                    {/* By Day */}
-                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                        <h3 className="text-white font-semibold mb-4">Günlük Harcama (Son 30 Gün)</h3>
-                        {costs.byDay.length === 0 ? (
-                            <p className="text-slate-500 text-sm py-4 text-center">Veri yok</p>
-                        ) : (
-                            <div className="space-y-2 max-h-64 overflow-y-auto">
-                                {costs.byDay.map((item) => (
-                                    <div key={item.date} className="flex items-center justify-between text-sm">
-                                        <span className="text-slate-400">{item.date}</span>
-                                        <span className="text-white font-mono">${item.costUsd.toFixed(6)}</span>
-                                    </div>
-                                ))}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Araç Bazlı Maliyet Tablosu */}
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex flex-col min-h-[400px]">
+                            <h3 className="text-lg font-bold text-white mb-6">Araç Bazlı Harcama</h3>
+                            {breakdown.length === 0 ? (
+                                <div className="flex-1 flex items-center justify-center text-slate-500">Kayıtlı veri bulunamadı.</div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm whitespace-nowrap">
+                                        <thead className="text-slate-400 border-b border-slate-800">
+                                            <tr>
+                                                <th className="pb-3 font-medium">Yapay Zeka Aracı</th>
+                                                <th className="pb-3 font-medium text-center">İşlem Sayısı</th>
+                                                <th className="pb-3 font-medium text-right">Maliyet (USD)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800/50">
+                                            {breakdown.map((item, i) => (
+                                                <tr key={i} className="hover:bg-slate-800/30 transition-colors">
+                                                    <td className="py-4 text-slate-200">{item.name}</td>
+                                                    <td className="py-4 text-slate-400 text-center">{item.count}</td>
+                                                    <td className="py-4 text-emerald-400 text-right font-mono">{formatCurrency(item.cost)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Son 14 Gün Harcama Grafiği (Bar/Table) */}
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex flex-col min-h-[400px]">
+                            <h3 className="text-lg font-bold text-white mb-6">Son 14 Gün Maliyeti</h3>
+                            <div className="flex-1 flex flex-col justify-end space-y-3">
+                                {dailyData.map((d, i) => {
+                                    const widthPercent = (d.cost / maxDailyCost) * 100;
+                                    const dateLabel = new Date(d.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+
+                                    return (
+                                        <div key={i} className="flex items-center gap-3 text-sm">
+                                            <div className="w-16 shrink-0 text-slate-500 text-xs text-right">
+                                                {dateLabel}
+                                            </div>
+                                            <div className="flex-1 flex items-center gap-2">
+                                                <div className="h-2.5 bg-slate-800 rounded-full flex-1 overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-indigo-500 rounded-full transition-all duration-500 relative min-w-[2px]"
+                                                        style={{ width: `${widthPercent}%` }}
+                                                    />
+                                                </div>
+                                                <div className="w-20 shrink-0 text-right font-mono text-[11px] text-slate-400">
+                                                    {d.cost > 0 ? formatCurrency(d.cost) : '$0.0000'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </div>
