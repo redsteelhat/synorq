@@ -34,12 +34,13 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
         return (
             <div className="p-4 md:p-8 space-y-8">
                 <div className="mb-4">
-                    <h2 className="text-white text-2xl font-bold mb-1">
-                        Hoş geldin 👋
-                    </h2>
-                    <p className="text-slate-400">
-                        {workspaceName} — {workspacePlan.charAt(0).toUpperCase() + workspacePlan.slice(1)} Plan
-                    </p>
+                    <h2 className="text-2xl font-semibold text-[#F1F5F9] mb-1">Dashboard</h2>
+                    <div className="flex items-center gap-2">
+                        <p className="text-sm text-[#64748B]">{workspaceName}</p>
+                        <span className="rounded-full border border-[#2D3F55] bg-[#1E2A3A] px-2 py-0.5 text-[10px] font-medium uppercase tracking-widest text-[#64748B]">
+                            {workspacePlan.charAt(0).toUpperCase() + workspacePlan.slice(1)} Plan
+                        </span>
+                    </div>
                 </div>
 
                 {/* Stat Cards */}
@@ -48,75 +49,92 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
                         title="Total Tasks"
                         value={totalTasks}
                         icon={CheckSquare}
+                        iconColor="indigo"
                     />
                     <StatCard
                         title="This Month Cost"
                         value={`$${thisMonthCost.toFixed(4)}`}
                         icon={DollarSign}
+                        iconColor="emerald"
                     />
                     <StatCard
                         title="Active Tools"
                         value={activeTools}
                         icon={Cpu}
+                        iconColor="violet"
                     />
                     <StatCard
                         title="Prompt Library"
                         value={promptLibraryCount}
                         icon={FileText}
+                        iconColor="amber"
                     />
                 </div>
 
                 {/* Recent Tasks */}
-                <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-                        <h3 className="text-white font-semibold flex items-center gap-2">
-                            <CheckSquare size={18} className="text-indigo-400" />
-                            Recent Tasks
-                        </h3>
-                        <Link href="/tasks" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
+                <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden">
+                    <div className="px-6 py-4 border-b border-[#1E2A3A] flex items-center justify-between">
+                        <h3 className="text-[#F1F5F9] font-semibold text-sm">Recent Tasks</h3>
+                        <Link href="/tasks" className="btn-secondary px-3 py-1.5 text-xs">
                             View All →
                         </Link>
                     </div>
 
                     {recentTasks.length === 0 ? (
-                        <div className="p-8 text-center text-slate-500 text-sm">
-                            Henüz görev bulunmuyor. <Link href="/tasks/new" className="text-indigo-400 hover:underline">İlk görevi oluştur</Link>
+                        <div className="m-6 empty-state">
+                            <div className="empty-state-icon">
+                                <CheckSquare size={20} className="text-[#334155]" />
+                            </div>
+                            <p className="text-[#F1F5F9] font-medium mb-1">Henüz görev bulunmuyor</p>
+                            <p className="mx-auto mb-6 max-w-xs text-center text-sm text-[#64748B]">
+                                İlk otomasyon görevini oluşturup bu alanda çıktıları takip et.
+                            </p>
+                            <Link href="/tasks/new" className="btn-primary px-5">
+                                İlk görevi oluştur
+                            </Link>
                         </div>
                     ) : (
-                        <div className="divide-y divide-slate-800/50">
-                            {recentTasks.map((task: { id: string, title: string, status: string, created_at: string, ai_tools: { display_name: string } | { display_name: string }[] | null }) => {
-                                let badgeColor = "bg-slate-500/10 text-slate-400 border-slate-500/20";
-                                const label = task.status;
-                                if (task.status === 'done') {
-                                    badgeColor = "bg-green-500/10 text-green-400 border-green-500/20";
-                                } else if (task.status === 'pending') {
-                                    badgeColor = "bg-slate-500/10 text-slate-400 border-slate-500/20";
-                                } else if (task.status === 'running') {
-                                    badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
-                                } else if (task.status === 'failed') {
-                                    badgeColor = "bg-red-500/10 text-red-400 border-red-500/20";
-                                }
+                        <div className="overflow-x-auto">
+                            <table className="min-w-[680px] w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-[#080C14]">
+                                    <tr className="border-b border-[#1E2A3A]">
+                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Task</th>
+                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Tool</th>
+                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Date</th>
+                                        <th className="px-6 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recentTasks.map((task: { id: string, title: string, status: string, created_at: string, ai_tools: { display_name: string } | { display_name: string }[] | null }) => {
+                                        let badgeColor = "bg-[#1E2A3A] text-[#64748B] border-[#2D3F55]";
+                                        const label = task.status;
+                                        if (task.status === 'done') {
+                                            badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                                        } else if (task.status === 'running') {
+                                            badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                                        } else if (task.status === 'failed') {
+                                            badgeColor = "bg-red-500/10 text-red-400 border-red-500/20";
+                                        }
 
-                                const toolName = Array.isArray(task.ai_tools) ? task.ai_tools[0]?.display_name : task.ai_tools?.display_name;
+                                        const toolName = Array.isArray(task.ai_tools) ? task.ai_tools[0]?.display_name : task.ai_tools?.display_name;
 
-                                return (
-                                    <div key={task.id} className="p-4 md:p-6 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
-                                        <div className="flex flex-col gap-1">
-                                            <div className="text-sm font-medium text-slate-200">{task.title}</div>
-                                            <div className="text-xs text-slate-500 flex items-center gap-2">
-                                                <span>{toolName || 'Araç seçilmedi'}</span>
-                                                <span className="w-1 h-1 rounded-full bg-slate-700"></span>
-                                                <span>{new Date(task.created_at).toLocaleDateString('tr-TR')}</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className={`px-2.5 py-1 rounded-full text-[11px] font-medium border ${badgeColor}`}>
-                                                {label.toUpperCase()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                        return (
+                                            <tr key={task.id} className="border-b border-[#1E2A3A]/50 hover:bg-[#111827]/50 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <span className="font-medium text-[#F1F5F9]">{task.title}</span>
+                                                </td>
+                                                <td className="px-6 py-4 text-xs text-[#64748B]">{toolName || 'Araç seçilmedi'}</td>
+                                                <td className="px-6 py-4 text-xs text-[#64748B]">{new Date(task.created_at).toLocaleDateString('tr-TR')}</td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${badgeColor}`}>
+                                                        {label.toUpperCase()}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
                     )}
                 </div>
@@ -125,10 +143,10 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
     } catch (error) {
         console.error("Dashboard datası çekilirken hata oluştu:", error);
         return (
-            <div className="p-8 text-center bg-slate-900 border border-slate-800 rounded-xl mx-4 md:mx-8 my-8 text-slate-400">
-                <AlertCircle size={40} className="mx-auto text-rose-400 mb-4" />
+            <div className="p-8 text-center bg-[#0D1321] border border-[#1E2A3A] rounded-xl mx-4 md:mx-8 my-8 text-[#64748B]">
+                <AlertCircle size={40} className="mx-auto text-red-400 mb-4" />
                 <p>Veriler yüklenirken bir hata oluştu.</p>
-                <p className="text-sm mt-2 text-slate-500">Lütfen daha sonra tekrar deneyin.</p>
+                <p className="text-sm mt-2 text-[#334155]">Lütfen daha sonra tekrar deneyin.</p>
             </div>
         );
     }
@@ -140,15 +158,15 @@ function DashboardSkeleton() {
     return (
         <div className="p-4 md:p-8 space-y-8 animate-pulse">
             <div className="mb-4">
-                <div className="h-8 w-48 bg-slate-800 rounded mb-2"></div>
-                <div className="h-4 w-64 bg-slate-800 rounded"></div>
+                <div className="h-8 w-48 bg-[#1E2A3A] rounded mb-2"></div>
+                <div className="h-4 w-64 bg-[#1E2A3A] rounded"></div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-[148px] bg-slate-800 rounded-xl border border-slate-700"></div>
+                    <div key={i} className="h-[148px] bg-[#0D1321] rounded-xl border border-[#1E2A3A]"></div>
                 ))}
             </div>
-            <div className="h-64 bg-slate-800 rounded-xl border border-slate-700"></div>
+            <div className="h-64 bg-[#0D1321] rounded-xl border border-[#1E2A3A]"></div>
         </div>
     );
 }
@@ -166,7 +184,6 @@ export default async function DashboardPage() {
         .single();
 
     if (!workspace) {
-        // İlk giriş: workspace oluştur
         const { data: newWorkspace } = await supabase
             .from('workspaces')
             .insert({ name: `${user.user_metadata?.full_name ?? user.email}'in Workspace'i`, owner_id: user.id })

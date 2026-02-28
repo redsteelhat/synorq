@@ -1,9 +1,19 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { Toaster } from 'sonner';
 
-const inter = Inter({ subsets: ['latin'] });
+const geist = localFont({
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist',
+  display: 'swap',
+});
+
+const geistMono = localFont({
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Synorq – AI Operations Platform',
@@ -17,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr" className="dark" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={`${geist.variable} ${geistMono.variable} bg-[#080C14] font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Toaster theme="dark" richColors />
       </body>

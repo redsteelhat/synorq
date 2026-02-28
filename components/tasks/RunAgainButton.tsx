@@ -42,7 +42,7 @@ export default function RunAgainButton({ taskId, workspaceId }: { taskId: string
         <button
             onClick={handleRun}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 rounded-lg text-sm font-medium text-white transition-all active:scale-95"
+            className="btn-primary px-4 py-2"
         >
             {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
             {loading ? 'Çalışıyor...' : 'Run Again'}

@@ -21,7 +21,7 @@ export default function SignOutButton() {
         <button
             onClick={handleLogout}
             disabled={loading}
-            className="flex items-center gap-1.5 hover:text-rose-400 disabled:opacity-50 transition-colors"
+            className="btn-secondary btn-destructive px-3 py-1.5 disabled:opacity-50"
         >
             <LogOut size={16} /> Çıkış
         </button>

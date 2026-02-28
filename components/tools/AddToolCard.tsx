@@ -65,9 +65,9 @@ export default function AddToolCard({ workspaceId }: AddToolCardProps) {
             <button
                 onClick={() => setOpen(true)}
                 id="add-tool-btn"
-                className="border-2 border-dashed border-slate-700 hover:border-purple-600 text-slate-400 hover:text-purple-400 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all min-h-[180px]"
+                className="border-2 border-dashed border-[#1E2A3A] hover:border-indigo-500/40 text-[#64748B] hover:text-[#F1F5F9] rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all min-h-[180px] bg-[#080C14]/50"
             >
-                <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-[#0D1321] border border-[#1E2A3A] flex items-center justify-center">
                     <Plus size={20} />
                 </div>
                 <span className="text-sm font-medium">AI Araç Ekle</span>
@@ -76,11 +76,11 @@ export default function AddToolCard({ workspaceId }: AddToolCardProps) {
     }
 
     return (
-        <div className="bg-slate-900 border border-purple-700/50 rounded-2xl p-6">
+        <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-2xl p-6">
             <h3 className="text-white font-semibold mb-4">Yeni AI Araç</h3>
             <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
-                    <label className="block text-xs text-slate-400 mb-1">Sağlayıcı</label>
+                    <label className="field-label">Sağlayıcı</label>
                     <select
                         value={provider}
                         onChange={(e) => {
@@ -88,7 +88,7 @@ export default function AddToolCard({ workspaceId }: AddToolCardProps) {
                             setModel(PROVIDER_OPTIONS.find((p) => p.name === e.target.value)!.models[0]);
                         }}
                         id="tool-provider"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        className="field-select px-3 py-2"
                     >
                         {PROVIDER_OPTIONS.map((p) => (
                             <option key={p.name} value={p.name}>{p.displayName}</option>
@@ -97,12 +97,12 @@ export default function AddToolCard({ workspaceId }: AddToolCardProps) {
                 </div>
 
                 <div>
-                    <label className="block text-xs text-slate-400 mb-1">Model</label>
+                    <label className="field-label">Model</label>
                     <select
                         value={model}
                         onChange={(e) => setModel(e.target.value)}
                         id="tool-model"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        className="field-select px-3 py-2 font-mono"
                     >
                         {selectedProvider.models.map((m) => (
                             <option key={m} value={m}>{m}</option>
@@ -111,7 +111,7 @@ export default function AddToolCard({ workspaceId }: AddToolCardProps) {
                 </div>
 
                 <div>
-                    <label className="block text-xs text-slate-400 mb-1">API Key</label>
+                    <label className="field-label">API Key</label>
                     <input
                         type="password"
                         value={apiKey}
@@ -119,7 +119,7 @@ export default function AddToolCard({ workspaceId }: AddToolCardProps) {
                         placeholder="sk-..."
                         required
                         id="tool-api-key"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        className="field-input px-3 py-2 font-mono"
                     />
                 </div>
 
@@ -129,14 +129,14 @@ export default function AddToolCard({ workspaceId }: AddToolCardProps) {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white text-sm font-medium py-2 rounded-lg transition-all"
+                        className="btn-primary flex-1 py-2"
                     >
                         {loading ? 'Ekleniyor...' : 'Ekle'}
                     </button>
                     <button
                         type="button"
                         onClick={() => setOpen(false)}
-                        className="px-3 border border-slate-700 text-slate-400 text-sm rounded-lg hover:border-slate-500 transition-all"
+                        className="btn-secondary px-3 py-2"
                     >
                         İptal
                     </button>

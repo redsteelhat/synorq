@@ -37,22 +37,27 @@ export default function LoginPage() {
     }
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/20 to-slate-950 flex items-center justify-center px-4">
-            <div className="w-full max-w-md">
+        <main className="relative min-h-screen bg-[#080C14] flex items-center justify-center px-4 overflow-hidden">
+            <div className="pointer-events-none absolute inset-0">
+                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.18),transparent_60%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+            </div>
+
+            <div className="w-full max-w-md relative">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center mx-auto mb-4">
-                        <span className="text-white font-bold text-xl">S</span>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 p-[1px] mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+                        <div className="h-full w-full rounded-[11px] bg-[#080C14]/40" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white">Synorq&apos;a Giriş Yap</h1>
-                    <p className="text-slate-400 mt-1">AI operasyonlarını yönetmeye devam et</p>
+                    <h1 className="text-2xl font-bold text-[#F1F5F9]">Synorq&apos;a Giriş Yap</h1>
+                    <p className="text-[#64748B] mt-1">AI operasyonlarını yönetmeye devam et</p>
                 </div>
 
                 {/* Form */}
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-8">
+                <div className="form-card rounded-2xl p-8">
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1.5">
+                            <label htmlFor="email" className="field-label">
                                 E-posta
                             </label>
                             <input
@@ -62,12 +67,12 @@ export default function LoginPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="ornek@email.com"
                                 required
-                                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                                className="field-input"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1.5">
+                            <label htmlFor="password" className="field-label">
                                 Şifre
                             </label>
                             <input
@@ -77,7 +82,7 @@ export default function LoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 required
-                                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                                className="field-input"
                             />
                         </div>
 
@@ -91,15 +96,15 @@ export default function LoginPage() {
                             type="submit"
                             disabled={loading}
                             id="login-submit"
-                            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all hover:shadow-lg hover:shadow-purple-500/25 mt-2"
+                            className="btn-primary w-full py-3 font-semibold mt-2"
                         >
                             {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center text-sm text-slate-400">
+                    <div className="mt-6 text-center text-sm text-[#64748B]">
                         Hesabın yok mu?{' '}
-                        <Link href="/signup" className="text-purple-400 hover:text-purple-300 font-medium">
+                        <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
                             Kayıt ol
                         </Link>
                     </div>

@@ -62,55 +62,68 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const NavContent = () => (
         <>
             {/* Logo */}
-            <div className="flex h-16 items-center px-6 border-b border-slate-800/60 bg-slate-900/50 flex-shrink-0">
+            <div className="flex h-16 items-center border-b border-[#1E2A3A] px-5 flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">S</span>
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 p-[1px] shadow-lg shadow-indigo-500/20">
+                        <div className="h-full w-full rounded-[7px] bg-[#080C14]/35" />
                     </div>
-                    <span className="text-white font-bold tracking-wide">Synorq</span>
+                    <div className="flex flex-col">
+                        <span className="text-white font-semibold tracking-tight text-[15px]">Synorq</span>
+                        <span className="text-[10px] text-[#334155] uppercase tracking-[0.15em] font-medium">AI Operations OS</span>
+                    </div>
                 </div>
             </div>
 
             {/* Navigation links */}
-            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-                {navItems.map(({ href, label, icon: Icon }) => {
-                    const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
-                    return (
-                        <Link
-                            key={href}
-                            href={href}
-                            onClick={onClose}
-                            className={cn(
-                                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors duration-150 group font-medium',
-                                isActive
-                                    ? 'bg-slate-800 text-white'
-                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                            )}
-                        >
-                            <Icon size={18} className={cn(
-                                "transition-colors",
-                                isActive ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300"
-                            )} />
-                            {label}
-                        </Link>
-                    );
-                })}
+            <nav className="flex-1 px-3 py-5 overflow-y-auto">
+                <div className="text-[9px] font-semibold tracking-[0.15em] text-[#334155] uppercase px-3 mb-1 mt-4">
+                    WORKSPACE
+                </div>
+                <div className="space-y-0.5">
+                    {navItems.map(({ href, label, icon: Icon }) => {
+                        const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+                        return (
+                            <Link
+                                key={href}
+                                href={href}
+                                onClick={onClose}
+                                className={cn(
+                                    'relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 group',
+                                    isActive
+                                        ? 'bg-[#6366F115] border border-[#6366F130] text-[#F1F5F9] font-medium before:absolute before:left-0 before:h-4 before:w-[2px] before:rounded-full before:bg-indigo-500 before:top-1/2 before:-translate-y-1/2'
+                                        : 'text-[#64748B] hover:text-[#F1F5F9] hover:bg-[#111827] border border-transparent'
+                                )}
+                            >
+                                <Icon size={18} className={cn(
+                                    "transition-colors",
+                                    isActive ? "text-indigo-400" : "text-[#64748B] group-hover:text-[#F1F5F9]"
+                                )} />
+                                {label}
+                            </Link>
+                        );
+                    })}
+                </div>
             </nav>
 
             {/* Footer / User Email + Logout */}
-            <div className="p-4 border-t border-slate-800/60 bg-slate-900/50 flex-shrink-0">
-                <div className="mb-3 px-2">
-                    <p className="text-xs font-medium text-slate-500 truncate" title={userEmail}>
+            <div className="p-4 border-t border-[#1E2A3A] flex-shrink-0">
+                <div className="flex items-center gap-3 px-1 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-xs font-semibold">
+                            {(userEmail?.[0] || 'U').toUpperCase()}
+                        </span>
+                    </div>
+                    <p className="text-xs text-[#64748B] truncate flex-1" title={userEmail}>
                         {userEmail}
                     </p>
+                    <button
+                        onClick={handleLogout}
+                        className="p-1.5 rounded-md text-[#64748B] hover:text-red-400 hover:bg-red-500/10 transition-colors duration-150"
+                        title="Logout"
+                    >
+                        <LogOut size={16} />
+                    </button>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors duration-150"
-                >
-                    <LogOut size={18} />
-                    Logout
-                </button>
             </div>
         </>
     );
@@ -130,7 +143,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             {/* Sidebar Desktop & Mobile */}
             <aside
                 className={cn(
-                    'fixed inset-y-0 left-0 z-[60] flex h-full w-[240px] flex-col border-r border-slate-800 bg-slate-900 shadow-xl transition-transform duration-300 ease-in-out md:static md:z-auto md:translate-x-0 md:shadow-none',
+                    'fixed inset-y-0 left-0 z-[60] flex h-full w-[240px] flex-col border-r border-[#1E2A3A] bg-[#080C14] shadow-[1px_0_0_0_#1E2A3A] transition-transform duration-300 ease-in-out md:static md:z-auto md:translate-x-0',
                     isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
                 )}
             >
@@ -138,7 +151,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 {isOpen && (
                     <button
                         onClick={onClose}
-                        className="md:hidden absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+                        className="md:hidden absolute top-4 right-4 p-2 text-[#64748B] hover:text-white"
                     >
                         <X size={20} />
                     </button>

@@ -242,10 +242,10 @@ function OnboardingWizard() {
     };
 
     return (
-        <div className="w-full bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+        <div className="w-full bg-[#0D1321] backdrop-blur-xl border border-[#1E2A3A] rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
             {/* Progress Bar */}
             <div className="flex items-center justify-between mb-12 relative">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-800 -z-10" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-[#1E2A3A] -z-10" />
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-indigo-600 -z-10 transition-all duration-500 ease-in-out" style={{ width: `${((step - 1) / 2) * 100}%` }} />
 
                 {[1, 2, 3].map((i) => (
@@ -253,7 +253,7 @@ function OnboardingWizard() {
                         key={i}
                         className={cn(
                             "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300",
-                            step > i ? "bg-indigo-600 text-white" : step === i ? "bg-slate-900 border-2 border-indigo-500 text-indigo-400" : "bg-slate-900 border-2 border-slate-700 text-slate-500"
+                            step > i ? "bg-indigo-600 text-[#F1F5F9]" : step === i ? "bg-[#0D1321] border-2 border-indigo-500 text-indigo-400" : "bg-[#0D1321] border-2 border-[#2D3F55] text-[#334155]"
                         )}
                     >
                         {step > i ? <CheckCircle2 size={18} /> : i}
@@ -264,12 +264,12 @@ function OnboardingWizard() {
             {/* Step 1: Workspace */}
             <div className={cn("transition-all duration-500", step === 1 ? "opacity-100 translate-x-0" : "opacity-0 hidden")}>
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">Synorq&apos;a hoş geldin! 👋</h2>
-                    <p className="text-slate-400">Önce workspace&apos;ini (çalışma alanını) oluşturalım.</p>
+                    <h2 className="text-3xl font-bold text-[#F1F5F9] mb-2">Synorq&apos;a hoş geldin! 👋</h2>
+                    <p className="text-[#64748B]">Önce workspace&apos;ini (çalışma alanını) oluşturalım.</p>
                 </div>
                 <form onSubmit={handleWorkspaceSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                        <label className="field-label flex items-center gap-2 mb-0">
                             <Building2 size={16} /> Çalışma Alanı Adı
                         </label>
                         <input
@@ -280,13 +280,13 @@ function OnboardingWizard() {
                             required
                             minLength={2}
                             autoFocus
-                            className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                            className="field-input py-3"
                         />
                     </div>
                     <button
                         type="submit"
                         disabled={loading || workspaceName.trim().length < 2}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 text-white py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                        className="btn-primary w-full py-3 rounded-xl"
                     >
                         {loading && <Loader2 size={18} className="animate-spin" />}
                         Devam Et
@@ -297,8 +297,8 @@ function OnboardingWizard() {
             {/* Step 2: Tool */}
             <div className={cn("transition-all duration-500", step === 2 ? "opacity-100 translate-x-0" : "opacity-0 hidden")}>
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl font-bold text-white mb-2">AI aracını bağla</h2>
-                    <p className="text-slate-400">ChatGPT, Claude veya Gemini ile başla.</p>
+                    <h2 className="text-2xl font-bold text-[#F1F5F9] mb-2">AI aracını bağla</h2>
+                    <p className="text-[#64748B]">ChatGPT, Claude veya Gemini ile başla.</p>
                 </div>
                 <form onSubmit={handleToolSubmit} className="space-y-6">
                     <div className="grid grid-cols-3 gap-3">
@@ -312,14 +312,14 @@ function OnboardingWizard() {
                                     onClick={() => handleProviderSelect(p.id)}
                                     className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected
                                         ? 'border-indigo-500 bg-indigo-500/10'
-                                        : 'border-slate-800 bg-slate-950/50 hover:border-slate-700'
+                                        : 'border-[#1E2A3A] bg-[#080C14] hover:border-[#2D3F55]'
                                         }`}
                                 >
                                     <div className={`p-2 rounded-full ${p.bg} ${p.color} mb-2`}>
                                         <Icon size={20} />
                                     </div>
-                                    <span className="text-sm font-medium text-slate-200">{p.name}</span>
-                                    <span className="text-[10px] text-slate-500 font-mono mt-0.5">{p.defaultName}</span>
+                                    <span className="text-sm font-medium text-[#F1F5F9]">{p.name}</span>
+                                    <span className="text-[10px] text-[#334155] font-mono mt-0.5">{p.defaultName}</span>
                                 </button>
                             );
                         })}
@@ -327,29 +327,29 @@ function OnboardingWizard() {
 
                     <div className={cn("space-y-4 transition-all duration-500 overflow-hidden", provider ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0")}>
                         <div className="space-y-1.5">
-                            <label className="text-sm font-medium text-slate-300">Model</label>
+                            <label className="field-label">Model</label>
                             <input
                                 type="text"
                                 value={model}
                                 onChange={e => setModel(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-indigo-500"
+                                className="field-input py-2 font-mono"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-sm font-medium text-slate-300">API Key</label>
+                            <label className="field-label">API Key</label>
                             <div className="relative">
                                 <input
                                     type={showKey ? "text" : "password"}
                                     value={apiKey}
                                     onChange={e => setApiKey(e.target.value)}
-                                    className="w-full bg-slate-950/50 border border-slate-800 rounded-lg pl-4 pr-10 py-2 text-white font-mono text-sm focus:outline-none focus:border-indigo-500"
+                                    className="field-input py-2 pl-4 pr-10 font-mono"
                                     placeholder="sk-..."
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowKey(!showKey)}
                                     tabIndex={-1}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#334155] hover:text-[#F1F5F9]"
                                 >
                                     {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -367,7 +367,7 @@ function OnboardingWizard() {
                         <button
                             type="submit"
                             disabled={testing || !provider || !apiKey}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 text-white py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                            className="btn-primary w-full py-3 rounded-xl"
                         >
                             {testing ? <Loader2 size={18} className="animate-spin" /> : null}
                             {testing ? "Test ediliyor..." : "Test Et ve Kaydet"}
@@ -375,7 +375,7 @@ function OnboardingWizard() {
                         <button
                             type="button"
                             onClick={() => updateStep(3)}
-                            className="text-sm text-slate-500 hover:text-slate-300 font-medium self-end transition-colors"
+                            className="text-sm text-[#334155] hover:text-[#F1F5F9] font-medium self-end transition-colors"
                         >
                             Şimdilik Atla →
                         </button>
@@ -386,26 +386,26 @@ function OnboardingWizard() {
             {/* Step 3: Prompt */}
             <div className={cn("transition-all duration-500", step === 3 ? "opacity-100 translate-x-0" : "opacity-0 hidden")}>
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl font-bold text-white mb-2">Bir prompt şablonu kaydet</h2>
-                    <p className="text-slate-400">Aynı promptu tekrar tekrar yazmak zorunda kalma.</p>
+                    <h2 className="text-2xl font-bold text-[#F1F5F9] mb-2">Bir prompt şablonu kaydet</h2>
+                    <p className="text-[#64748B]">Aynı promptu tekrar tekrar yazmak zorunda kalma.</p>
                 </div>
                 <form onSubmit={handlePromptSubmit} className="space-y-5">
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-slate-300">İsim</label>
+                        <label className="field-label">İsim</label>
                         <input
                             type="text"
                             value={promptName}
                             onChange={e => setPromptName(e.target.value)}
-                            className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                            className="field-input py-2"
                             placeholder="Örn: Blog Post Editor"
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-slate-300">Prompt İçeriği</label>
+                        <label className="field-label">Prompt İçeriği</label>
                         <textarea
                             value={promptContent}
                             onChange={e => setPromptContent(e.target.value)}
-                            className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-indigo-500 min-h-32 resize-y transition-colors"
+                            className="field-textarea min-h-32 resize-y"
                             placeholder="Aşağıdaki metni SEO kurallarına uygun olarak düzenle..."
                         />
                     </div>
@@ -413,7 +413,7 @@ function OnboardingWizard() {
                         <button
                             type="submit"
                             disabled={loading || !promptName || !promptContent}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-600/50 text-white py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                            className="btn-primary w-full py-3 rounded-xl"
                         >
                             {loading && <Loader2 size={18} className="animate-spin" />}
                             Kaydet ve Başla
@@ -421,7 +421,7 @@ function OnboardingWizard() {
                         <button
                             type="button"
                             onClick={skipToDashboard}
-                            className="text-sm text-slate-500 hover:text-slate-300 font-medium self-end transition-colors"
+                            className="text-sm text-[#334155] hover:text-[#F1F5F9] font-medium self-end transition-colors"
                         >
                             Atla, Dashboard&apos;a Geç →
                         </button>
@@ -435,7 +435,7 @@ function OnboardingWizard() {
 
 export default function OnboardingPage() {
     return (
-        <Suspense fallback={<div className="flex flex-col items-center justify-center p-12 text-slate-400"><Loader2 className="animate-spin mb-4" size={32} />Yükleniyor...</div>}>
+        <Suspense fallback={<div className="flex flex-col items-center justify-center p-12 text-[#64748B]"><Loader2 className="animate-spin mb-4" size={32} />Yükleniyor...</div>}>
             <OnboardingWizard />
         </Suspense>
     );

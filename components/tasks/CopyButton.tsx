@@ -29,7 +29,7 @@ export default function CopyButton({ text, className }: CopyButtonProps) {
                 "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all active:scale-95",
                 copied
                     ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700 hover:border-slate-600",
+                    : "border border-[#1E2A3A] bg-[#0D1321] text-[#64748B] hover:border-[#2D3F55] hover:text-[#F1F5F9]",
                 className
             )}
         >

@@ -76,14 +76,14 @@ export default function PromptForm({ workspaceId, initialValues }: PromptFormPro
     }
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-white mb-6">
+        <div className="form-card">
+            <h2 className="text-xl font-semibold text-[#F1F5F9] mb-6">
                 {initialValues?.parentId ? 'Yeni Versiyon Oluştur' : 'Yeni Prompt'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
 
-                <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-300">Prompt İsmi <span className="text-rose-400">*</span></label>
+                <div className="space-y-1.5">
+                    <label htmlFor="name" className="field-label">Prompt İsmi <span className="text-red-400">*</span></label>
                     <input
                         id="name"
                         type="text"
@@ -91,24 +91,24 @@ export default function PromptForm({ workspaceId, initialValues }: PromptFormPro
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Örn: SEO Blog Yazarı"
                         disabled={loading}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors disabled:opacity-50"
+                        className="field-input"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label htmlFor="content" className="block text-sm font-medium text-slate-300">İçerik <span className="text-rose-400">*</span></label>
+                <div className="space-y-1.5">
+                    <label htmlFor="content" className="field-label">İçerik <span className="text-red-400">*</span></label>
                     <textarea
                         id="content"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Sen deneyimli bir SEO blog yazarısın..."
                         disabled={loading}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 font-mono text-[13px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 min-h-[192px] resize-y"
+                        className="field-textarea min-h-[192px] resize-y text-[13px] leading-relaxed"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label htmlFor="tags" className="block text-sm font-medium text-slate-300">Etiketler</label>
+                <div className="space-y-1.5">
+                    <label htmlFor="tags" className="field-label">Etiketler</label>
                     <input
                         id="tags"
                         type="text"
@@ -116,21 +116,21 @@ export default function PromptForm({ workspaceId, initialValues }: PromptFormPro
                         onChange={(e) => setTagsInput(e.target.value)}
                         placeholder="virgülle ayır: seo, blog, email"
                         disabled={loading}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors disabled:opacity-50"
+                        className="field-input"
                     />
                 </div>
 
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+                <div className="pt-4 border-t border-[#1E2A3A] flex items-center justify-end gap-3">
                     <Link
                         href="/prompts"
-                        className="px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+                        className="btn-secondary"
                     >
                         İptal
                     </Link>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-600/50 disabled:cursor-not-allowed text-white font-medium py-2.5 px-6 rounded-lg transition-all flex items-center justify-center gap-2"
+                        className="btn-primary px-6"
                     >
                         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                         {loading ? 'Kaydediliyor...' : 'Kaydet'}

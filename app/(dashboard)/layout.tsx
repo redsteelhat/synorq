@@ -36,11 +36,11 @@ export default function DashboardLayout({
     }, []);
 
     return (
-        <div className="flex h-screen bg-slate-950 overflow-hidden text-slate-50">
+        <div className="flex h-screen bg-[#080C14] overflow-hidden text-[#F1F5F9]">
             <button
                 type="button"
                 onClick={() => setIsSidebarOpen(true)}
-                className="fixed left-4 top-4 z-[70] md:hidden rounded-md border border-slate-700 bg-slate-900 p-2 text-slate-200 shadow-sm"
+                className="fixed left-4 top-4 z-[70] md:hidden rounded-md border border-[#1E2A3A] bg-[#0D1321] p-2 text-[#F1F5F9] transition-all duration-150 hover:border-[#2D3F55] hover:bg-[#111827]"
                 aria-label="Menüyü aç"
             >
                 <Menu size={20} />

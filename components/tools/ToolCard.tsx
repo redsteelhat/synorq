@@ -6,29 +6,45 @@ import { toast } from 'sonner';
 import { Trash2, Key } from 'lucide-react';
 import type { AITool } from '@/types';
 
-// Extended type since we added key_preview
 type ToolPreview = Pick<AITool, 'id' | 'name' | 'display_name' | 'model' | 'is_active'> & { key_preview?: string };
+
+const providerConfig = {
+    openai: {
+        monogram: 'OA',
+        brand: 'OpenAI',
+        iconBg: 'bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/20',
+        glowColor: 'bg-green-400',
+    },
+    anthropic: {
+        monogram: 'AN',
+        brand: 'Anthropic',
+        iconBg: 'bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/20',
+        glowColor: 'bg-orange-400',
+    },
+    google: {
+        monogram: 'GG',
+        brand: 'Google',
+        iconBg: 'bg-gradient-to-br from-blue-500/20 to-indigo-500/10 border border-blue-500/20',
+        glowColor: 'bg-blue-400',
+    },
+} as const;
 
 export default function ToolCard({ tool }: { tool: ToolPreview }) {
     const router = useRouter();
     const [isActive, setIsActive] = useState(tool.is_active);
     const [loading, setLoading] = useState(false);
 
-    let emoji = '⚙️';
-    let brand: string = tool.name;
-
-    if (tool.name === 'openai') {
-        emoji = '⚡'; brand = 'OpenAI';
-    } else if (tool.name === 'anthropic') {
-        emoji = '🧠'; brand = 'Anthropic';
-    } else if (tool.name === 'google') {
-        emoji = '✨'; brand = 'Google';
-    }
+    const config = providerConfig[tool.name as keyof typeof providerConfig] || {
+        monogram: 'AI',
+        brand: tool.name,
+        iconBg: 'bg-gradient-to-br from-[#334155]/40 to-[#334155]/20 border border-[#334155]',
+        glowColor: 'bg-[#64748B]',
+    };
 
     const toggleActive = async () => {
         setLoading(true);
         const newState = !isActive;
-        setIsActive(newState); // optimistic update
+        setIsActive(newState);
 
         try {
             const res = await fetch(`/api/tools/${tool.id}`, {
@@ -41,7 +57,7 @@ export default function ToolCard({ tool }: { tool: ToolPreview }) {
             toast.success(`${tool.display_name} ${newState ? 'aktifleştirildi' : 'devre dışı bırakıldı'}.`);
             router.refresh();
         } catch {
-            setIsActive(!newState); // revert
+            setIsActive(!newState);
             toast.error('Araç durumu güncellenemedi.');
         } finally {
             setLoading(false);
@@ -65,45 +81,49 @@ export default function ToolCard({ tool }: { tool: ToolPreview }) {
         }
     };
 
-    return (
-        <div className={`bg-slate-900 border ${isActive ? 'border-indigo-500/30' : 'border-slate-800'} hover:border-indigo-500/50 rounded-xl p-5 shadow-sm transition-colors duration-200 flex flex-col gap-4 relative overflow-hidden group`}>
+    const keyPreview = tool.key_preview || '••••••••';
 
-            <div className="flex justify-between items-start">
-                <div className="flex gap-2.5 items-center bg-slate-950 px-2 py-1 rounded-md border border-slate-800 w-fit">
-                    <span className="text-sm" title={brand}>{emoji}</span>
-                    <span className="text-xs font-medium text-slate-300">{brand}</span>
+    return (
+        <div className={`bg-[#0D1321] border ${isActive ? 'border-[#6366F130]' : 'border-[#1E2A3A]'} hover:border-[#6366F130] rounded-xl p-5 transition-all duration-200 flex flex-col gap-4 relative overflow-hidden group`}>
+            {/* Decorative glow */}
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-5 ${config.glowColor}`} />
+
+            <div className="flex justify-between items-start relative">
+                <div className={`w-11 h-11 rounded-xl ${config.iconBg} flex items-center justify-center`}>
+                    <span className="font-mono text-xs font-semibold tracking-widest text-[#F1F5F9]">{config.monogram}</span>
                 </div>
 
-                {/* Active Toggle */}
                 <button
                     onClick={toggleActive}
                     disabled={loading}
-                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${isActive ? 'bg-indigo-600' : 'bg-slate-700'
-                        }`}
+                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-[#0D1321] ${isActive ? 'bg-indigo-600 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-[#1E2A3A]'}`}
                 >
                     <span
                         aria-hidden="true"
-                        className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isActive ? 'translate-x-3.5' : 'translate-x-0'
-                            }`}
+                        className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isActive ? 'translate-x-3.5' : 'translate-x-0'}`}
                     />
                 </button>
             </div>
 
-            <div className="space-y-1">
-                <h3 className={`text-lg font-bold ${isActive ? 'text-white' : 'text-slate-400'} transition-colors`}>{tool.display_name}</h3>
-                <p className="text-sm font-mono text-slate-500">{tool.model}</p>
+            <div className="space-y-1.5 relative">
+                <h3 className={`text-lg font-bold ${isActive ? 'text-[#F1F5F9]' : 'text-[#64748B]'} transition-colors`}>{tool.display_name}</h3>
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-[#64748B]">{config.brand}</span>
+                    <span className="bg-[#1E2A3A] text-[#64748B] text-[10px] rounded-full px-2 py-0.5 font-mono uppercase">{tool.model}</span>
+                </div>
             </div>
 
-            <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
-                    <Key size={14} className="opacity-70" />
-                    <span>{tool.key_preview || '••••••••HATA'}</span>
+            <div className="mt-auto pt-4 border-t border-[#1E2A3A] flex items-center justify-between relative">
+                <div className="flex items-center gap-1.5 font-mono text-xs">
+                    <Key size={14} className="text-[#334155]" />
+                    <span className="text-[#334155]">{'••••••••'}</span>
+                    <span className="text-[#64748B]">{keyPreview.slice(-4)}</span>
                 </div>
 
                 <button
                     onClick={handleDelete}
                     disabled={loading}
-                    className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 rounded-md transition-colors disabled:opacity-50"
+                    className="p-1.5 text-[#64748B] hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors duration-150 disabled:opacity-50"
                     title="Aracı Sil"
                 >
                     <Trash2 size={16} />

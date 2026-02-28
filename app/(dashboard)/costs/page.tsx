@@ -15,6 +15,23 @@ interface JoinOutput {
     } | { ai_tools?: { display_name?: string } | { display_name?: string }[] | null }[] | null;
 }
 
+const toolDotColors: Record<string, string> = {
+    'ChatGPT': 'bg-green-400',
+    'GPT': 'bg-green-400',
+    'OpenAI': 'bg-green-400',
+    'Claude': 'bg-orange-400',
+    'Anthropic': 'bg-orange-400',
+    'Gemini': 'bg-blue-400',
+    'Google': 'bg-blue-400',
+};
+
+function getToolDotColor(name: string): string {
+    for (const [key, color] of Object.entries(toolDotColors)) {
+        if (name.toLowerCase().includes(key.toLowerCase())) return color;
+    }
+    return 'bg-[#64748B]';
+}
+
 export default async function CostsPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -29,12 +46,11 @@ export default async function CostsPage() {
 
     if (!workspace) redirect('/dashboard');
 
-    // Join ile tüm verileri sunucuya indirelim (veri artınca optimize edilmeli ama şimdilik en iyisi)
     const { data: allOutputs } = await supabase
         .from('outputs')
         .select(`
-            cost_usd, 
-            created_at, 
+            cost_usd,
+            created_at,
             tasks(ai_tools(display_name))
         `)
         .eq('workspace_id', workspace.id);
@@ -56,7 +72,6 @@ export default async function CostsPage() {
         .eq('workspace_id', workspace.id)
         .gte('created_at', lastWeek.toISOString());
 
-    // d) Araç Breakdown
     const toolStats = new Map<string, { count: number; cost: number }>();
     outputs.forEach((o: JoinOutput) => {
         const cost = Number(o.cost_usd) || 0;
@@ -82,7 +97,6 @@ export default async function CostsPage() {
         .map(([name, stats]) => ({ name, ...stats }))
         .sort((a, b) => b.cost - a.cost);
 
-    // e) Son 14 Gün Verisi
     const last14Days = Array.from({ length: 14 })
         .map((_, i) => {
             const d = new Date();
@@ -102,7 +116,7 @@ export default async function CostsPage() {
     });
 
     const dailyData = Object.entries(last14Days).map(([date, cost]) => ({ date, cost }));
-    const maxDailyCost = Math.max(...dailyData.map(d => d.cost), 0.0001); // Sıfıra bölünmeyi önle
+    const maxDailyCost = Math.max(...dailyData.map(d => d.cost), 0.0001);
 
     return (
         <div className="h-full flex flex-col">
@@ -116,41 +130,47 @@ export default async function CostsPage() {
                             title="Toplam Harcama"
                             value={formatCurrency(totalCost)}
                             icon={DollarSign}
+                            iconColor="emerald"
                         />
                         <StatCard
                             title="Bu Ay Harcama"
                             value={formatCurrency(thisMonthCost)}
                             icon={Activity}
+                            iconColor="indigo"
                         />
                         <StatCard
                             title="Bu Hafta Görev"
                             value={thisWeekTasks?.toString() || '0'}
                             icon={Settings2}
+                            iconColor="violet"
                         />
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Araç Bazlı Maliyet Tablosu */}
-                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex flex-col min-h-[400px]">
-                            <h3 className="text-lg font-bold text-white mb-6">Araç Bazlı Harcama</h3>
+                        <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 flex flex-col min-h-[400px]">
+                            <h3 className="text-lg font-semibold text-[#F1F5F9] mb-6">Araç Bazlı Harcama</h3>
                             {breakdown.length === 0 ? (
-                                <div className="flex-1 flex items-center justify-center text-slate-500">Kayıtlı veri bulunamadı.</div>
+                                <div className="flex-1 flex items-center justify-center text-[#64748B]">Kayıtlı veri bulunamadı.</div>
                             ) : (
-                                <div className="overflow-x-auto rounded-lg border border-slate-800">
+                                <div className="overflow-x-auto rounded-lg border border-[#1E2A3A]">
                                     <table className="min-w-[600px] w-full text-left text-sm whitespace-nowrap">
-                                        <thead className="text-slate-400 border-b border-slate-800">
-                                            <tr>
-                                                <th className="pb-3 font-medium">Yapay Zeka Aracı</th>
-                                                <th className="pb-3 font-medium text-center">İşlem Sayısı</th>
-                                                <th className="pb-3 font-medium text-right">Maliyet (USD)</th>
+                                        <thead className="bg-[#080C14]">
+                                            <tr className="border-b border-[#1E2A3A]">
+                                                <th className="px-4 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold">Yapay Zeka Aracı</th>
+                                                <th className="px-4 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold text-center">İşlem Sayısı</th>
+                                                <th className="px-4 py-3 text-[9px] uppercase tracking-widest text-[#334155] font-semibold text-right">Maliyet (USD)</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-800/50">
+                                        <tbody className="divide-y divide-[#1E2A3A]/50">
                                             {breakdown.map((item, i) => (
-                                                <tr key={i} className="hover:bg-slate-800/50 transition-colors">
-                                                    <td className="py-4 text-slate-200">{item.name}</td>
-                                                    <td className="py-4 text-slate-400 text-center">{item.count}</td>
-                                                    <td className="py-4 text-emerald-400 text-right font-mono">{formatCurrency(item.cost)}</td>
+                                                <tr key={i} className="hover:bg-[#111827]/50 transition-colors">
+                                                    <td className="px-4 py-4 text-[#F1F5F9] flex items-center gap-2">
+                                                        <span className={`w-2 h-2 rounded-full ${getToolDotColor(item.name)}`} />
+                                                        {item.name}
+                                                    </td>
+                                                    <td className="px-4 py-4 text-[#64748B] text-center">{item.count}</td>
+                                                    <td className="px-4 py-4 text-emerald-400 text-right font-mono">{formatCurrency(item.cost)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -159,33 +179,33 @@ export default async function CostsPage() {
                             )}
                         </div>
 
-                        {/* Son 14 Gün Harcama Grafiği (Bar/Table) */}
-                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex flex-col min-h-[400px]">
-                            <h3 className="text-lg font-bold text-white mb-6">Son 14 Gün Maliyeti</h3>
-                            <div className="flex-1 flex flex-col justify-end space-y-3">
+                        {/* Son 14 Gün Harcama Grafiği */}
+                        <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 flex flex-col min-h-[400px]">
+                            <h3 className="text-lg font-semibold text-[#F1F5F9] mb-6">Son 14 Gün Maliyeti</h3>
+                            <div className="flex-1 overflow-x-auto">
+                                <div className="grid min-w-[640px] grid-cols-14 gap-3 h-full items-end">
                                 {dailyData.map((d, i) => {
-                                    const widthPercent = (d.cost / maxDailyCost) * 100;
-                                    const dateLabel = new Date(d.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+                                    const barHeight = d.cost > 0
+                                        ? `${Math.max((d.cost / maxDailyCost) * 100, 2)}%`
+                                        : '2px';
+                                    const dateLabel = new Date(d.date).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
 
                                     return (
-                                        <div key={i} className="flex items-center gap-3 text-sm">
-                                            <div className="w-16 shrink-0 text-slate-500 text-xs text-right">
-                                                {dateLabel}
+                                        <div key={i} className="flex flex-col items-center gap-2">
+                                            <div className="w-full max-w-[26px] h-44 rounded-full bg-[#1E2A3A] overflow-hidden flex items-end">
+                                                <div
+                                                    className="w-full rounded-full bg-gradient-to-t from-indigo-600 to-indigo-400 transition-all duration-500 min-h-[2px]"
+                                                    style={{ height: barHeight }}
+                                                />
                                             </div>
-                                            <div className="flex-1 flex items-center gap-2">
-                                                <div className="h-2.5 bg-slate-800 rounded-full flex-1 overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-indigo-500 rounded-full transition-all duration-500 relative min-w-[2px]"
-                                                        style={{ width: `${widthPercent}%` }}
-                                                    />
-                                                </div>
-                                                <div className="w-20 shrink-0 text-right font-mono text-[11px] text-slate-400">
-                                                    {d.cost > 0 ? formatCurrency(d.cost) : '$0.0000'}
-                                                </div>
+                                            <div className="font-mono text-[10px] text-[#334155]">{dateLabel}</div>
+                                            <div className="text-xs text-[#64748B] font-mono">
+                                                {d.cost > 0 ? formatCurrency(d.cost) : '$0.0000'}
                                             </div>
                                         </div>
                                     );
                                 })}
+                                </div>
                             </div>
                         </div>
                     </div>
