@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { runAI } from '@/lib/ai/router';
 import { decryptApiKey } from '@/lib/crypto';
 import type { AIProvider } from '@/types';
+import { evaluateRunGuard, type WorkspacePlan, type SubscriptionStatus } from '@/lib/billing';
 
 export async function POST(request: NextRequest) {
     try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
         // Workspace sahipliğini doğrula
         const { data: workspace, error: wsError } = await supabase
             .from('workspaces')
-            .select('id')
+            .select('id, plan, subscription_status')
             .eq('id', workspaceId)
             .eq('owner_id', user.id)
             .single();
@@ -48,7 +49,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Task bulunamadı' }, { status: 404 });
         }
 
-        if (!task.ai_tools) {
+        const aiTool = Array.isArray(task.ai_tools) ? task.ai_tools[0] : task.ai_tools;
+
+        if (!aiTool) {
             return NextResponse.json({ error: 'Task için AI araç tanımlanmamış' }, { status: 400 });
         }
 
@@ -56,6 +59,37 @@ export async function POST(request: NextRequest) {
 
         if (!promptContent) {
             return NextResponse.json({ error: 'Prompt içeriği bulunamadı' }, { status: 400 });
+        }
+
+        const runGuard = await evaluateRunGuard({
+            supabase,
+            workspace: {
+                id: workspace.id,
+                plan: workspace.plan as WorkspacePlan,
+                subscription_status: workspace.subscription_status as SubscriptionStatus,
+            },
+            taskId,
+            toolId: aiTool.id ?? null,
+            clientTag: task.client_tag ?? null,
+            projectTag: task.project_tag ?? null,
+        });
+
+        if (!runGuard.allowed) {
+            await supabase
+                .from('tasks')
+                .update({ status: 'failed' })
+                .eq('id', taskId);
+
+            return NextResponse.json(
+                {
+                    error: runGuard.message,
+                    code: runGuard.code,
+                    usage: runGuard.usage,
+                    warnings: runGuard.warnings,
+                    upgradeCtaUrl: runGuard.upgradeCtaUrl,
+                },
+                { status: runGuard.status }
+            );
         }
 
         // Task durumunu 'running' yap
@@ -71,10 +105,10 @@ export async function POST(request: NextRequest) {
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
         try {
-            const apiKey = decryptApiKey(task.ai_tools.api_key_encrypted!);
+            const apiKey = decryptApiKey(aiTool.api_key_encrypted!);
             aiResult = await runAI(
-                task.ai_tools.name as AIProvider,
-                task.ai_tools.model!,
+                aiTool.name as AIProvider,
+                aiTool.model!,
                 apiKey,
                 promptContent,
                 controller.signal
@@ -100,9 +134,11 @@ export async function POST(request: NextRequest) {
                 input_tokens: aiResult?.inputTokens ?? 0,
                 output_tokens: aiResult?.outputTokens ?? 0,
                 cost_usd: aiResult?.costUsd ?? 0,
-                model_used: task.ai_tools.model,
+                model_used: aiTool.model,
                 duration_ms: aiResult?.durationMs ?? null,
                 error: outputError,
+                client_tag: task.client_tag ?? null,
+                project_tag: task.project_tag ?? null,
             })
             .select()
             .single();
@@ -114,10 +150,18 @@ export async function POST(request: NextRequest) {
             .eq('id', taskId);
 
         if (outputError) {
-            return NextResponse.json({ success: false, error: outputError, output }, { status: 422 });
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: outputError,
+                    output,
+                    usageWarnings: runGuard.warnings,
+                },
+                { status: 422 }
+            );
         }
 
-        return NextResponse.json({ success: true, output });
+        return NextResponse.json({ success: true, output, usageWarnings: runGuard.warnings });
     } catch (error) {
         console.error('Run API hatası:', error);
         return NextResponse.json(

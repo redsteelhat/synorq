@@ -20,6 +20,8 @@ export default function TaskForm({ workspaceId, tools, prompts }: TaskFormProps)
     const [promptMode, setPromptMode] = useState<'library' | 'custom'>('library');
     const [selectedPromptId, setSelectedPromptId] = useState(prompts[0]?.id ?? '');
     const [customPrompt, setCustomPrompt] = useState('');
+    const [clientTag, setClientTag] = useState('');
+    const [projectTag, setProjectTag] = useState('');
     const [loading, setLoading] = useState(false);
 
     const selectedPrompt = prompts.find(p => p.id === selectedPromptId);
@@ -59,6 +61,8 @@ export default function TaskForm({ workspaceId, tools, prompts }: TaskFormProps)
                     toolId,
                     promptId: promptMode === 'library' ? selectedPromptId : undefined,
                     customPrompt: promptMode === 'custom' ? customPrompt : undefined,
+                    clientTag: clientTag.trim() || undefined,
+                    projectTag: projectTag.trim() || undefined,
                 })
             });
 
@@ -82,6 +86,9 @@ export default function TaskForm({ workspaceId, tools, prompts }: TaskFormProps)
 
             if (!runRes.ok) {
                 const errData = await runRes.json();
+                if (errData.upgradeCtaUrl) {
+                    throw new Error(`${errData.error || 'Kullanım limitine ulaşıldı'} Planınızı yükseltin: ${errData.upgradeCtaUrl}`);
+                }
                 throw new Error(errData.error || 'Görev başarısız oldu');
             }
 
@@ -149,6 +156,33 @@ export default function TaskForm({ workspaceId, tools, prompts }: TaskFormProps)
                             </div>
                         </div>
                     )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                        <label htmlFor="client-tag" className="field-label">Client Tag</label>
+                        <input
+                            id="client-tag"
+                            type="text"
+                            value={clientTag}
+                            onChange={(e) => setClientTag(e.target.value)}
+                            placeholder="örn: acme"
+                            disabled={loading}
+                            className="field-input"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label htmlFor="project-tag" className="field-label">Project Tag</label>
+                        <input
+                            id="project-tag"
+                            type="text"
+                            value={projectTag}
+                            onChange={(e) => setProjectTag(e.target.value)}
+                            placeholder="örn: q1-launch"
+                            disabled={loading}
+                            className="field-input"
+                        />
+                    </div>
                 </div>
 
                 {/* Prompt Type Toggle */}

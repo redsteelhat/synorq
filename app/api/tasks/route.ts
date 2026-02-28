@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { workspaceId, title, toolId, promptId, customPrompt } = body;
+        const { workspaceId, title, toolId, promptId, customPrompt, clientTag, projectTag } = body;
 
         if (!workspaceId || !title) {
             return NextResponse.json({ error: 'workspaceId ve title zorunludur' }, { status: 400 });
@@ -89,6 +89,8 @@ export async function POST(request: NextRequest) {
                 tool_id: toolId ?? null,
                 prompt_id: promptId ?? null,
                 custom_prompt: customPrompt ?? null,
+                client_tag: clientTag?.trim() || null,
+                project_tag: projectTag?.trim() || null,
                 created_by: user.id,
                 status: 'pending',
             })

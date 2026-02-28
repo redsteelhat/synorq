@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
             .insert({
                 owner_id: user.id,
                 name: name.trim(),
-                plan: 'free'
+                plan: 'free',
+                subscription_status: 'inactive',
             })
             .select('*')
             .single();

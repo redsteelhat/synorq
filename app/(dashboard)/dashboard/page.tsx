@@ -6,10 +6,13 @@ import StatCard from '@/components/dashboard/StatCard';
 import { CheckSquare, FileText, Cpu, DollarSign, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
+import { PLAN_LIMITS, getEffectivePlan, type WorkspacePlan, type SubscriptionStatus } from '@/lib/billing';
 
 interface DashboardOutputRow {
     cost_usd: string | number | null;
     created_at: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
     tasks?: {
         ai_tools?: {
             id?: string;
@@ -18,7 +21,17 @@ interface DashboardOutputRow {
     } | { ai_tools?: { id?: string; display_name?: string } | { id?: string; display_name?: string }[] | null }[] | null;
 }
 
-async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: { workspaceId: string, workspaceName: string, workspacePlan: string }) {
+async function DashboardContent({
+    workspaceId,
+    workspaceName,
+    workspacePlan,
+    subscriptionStatus,
+}: {
+    workspaceId: string;
+    workspaceName: string;
+    workspacePlan: WorkspacePlan;
+    subscriptionStatus: SubscriptionStatus;
+}) {
     const supabase = await createClient();
 
     try {
@@ -29,7 +42,7 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
         const pTools = supabase.from('ai_tools').select('*', { count: 'exact', head: true }).eq('workspace_id', workspaceId).eq('is_active', true);
         const pPrompts = supabase.from('prompts').select('*', { count: 'exact', head: true }).eq('workspace_id', workspaceId);
         const pCosts = supabase.from('outputs')
-            .select(`cost_usd, created_at, tasks(ai_tools(id, display_name))`)
+            .select(`cost_usd, created_at, input_tokens, output_tokens, tasks(ai_tools(id, display_name))`)
             .eq('workspace_id', workspaceId)
             .gte('created_at', monthStart);
         const pRecent = supabase.from('tasks')
@@ -48,6 +61,24 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
 
         const monthlyOutputs = (costsRes.data ?? []) as DashboardOutputRow[];
         const thisMonthCost = monthlyOutputs.reduce((sum, row) => sum + Number(row.cost_usd || 0), 0);
+        const thisMonthRequests = monthlyOutputs.length;
+        const thisMonthTokens = monthlyOutputs.reduce(
+            (sum, row) => sum + Number(row.input_tokens || 0) + Number(row.output_tokens || 0),
+            0
+        );
+        const effectivePlan = getEffectivePlan(workspacePlan, subscriptionStatus);
+        const activeLimits = PLAN_LIMITS[effectivePlan];
+        const usageWarnings: string[] = [];
+
+        if (activeLimits.requestsPerMonth && thisMonthRequests / activeLimits.requestsPerMonth >= 0.8) {
+            usageWarnings.push(`İstek limiti: ${thisMonthRequests}/${activeLimits.requestsPerMonth}`);
+        }
+        if (activeLimits.tokensPerMonth && thisMonthTokens / activeLimits.tokensPerMonth >= 0.8) {
+            usageWarnings.push(`Token limiti: ${thisMonthTokens}/${activeLimits.tokensPerMonth}`);
+        }
+        if (activeLimits.costUsdPerMonth && thisMonthCost / activeLimits.costUsdPerMonth >= 0.8) {
+            usageWarnings.push(`Maliyet limiti: ${thisMonthCost.toFixed(4)}/${activeLimits.costUsdPerMonth}`);
+        }
 
         const toolCostMap = new Map<string, { name: string; cost: number }>();
         for (const output of monthlyOutputs) {
@@ -86,6 +117,18 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
                         </span>
                     </div>
                 </div>
+
+                {usageWarnings.length > 0 && (
+                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
+                        <p className="text-xs uppercase tracking-wider text-amber-300 mb-1 font-semibold">
+                            Kullanım Uyarısı (%80+)
+                        </p>
+                        <p className="text-sm text-amber-200">{usageWarnings.join(' • ')}</p>
+                        <Link href="/dashboard?upgrade=1" className="mt-2 inline-flex text-xs text-amber-100 underline underline-offset-4">
+                            Planı yükselt
+                        </Link>
+                    </div>
+                )}
 
                 {/* Stat Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -275,7 +318,12 @@ export default async function DashboardPage() {
     if (!workspace) {
         const { data: newWorkspace } = await supabase
             .from('workspaces')
-            .insert({ name: `${user.user_metadata?.full_name ?? user.email}'in Workspace'i`, owner_id: user.id })
+            .insert({
+                name: `${user.user_metadata?.full_name ?? user.email}'in Workspace'i`,
+                owner_id: user.id,
+                plan: 'free',
+                subscription_status: 'inactive',
+            })
             .select()
             .single();
 
@@ -296,7 +344,8 @@ export default async function DashboardPage() {
                 <DashboardContent
                     workspaceId={workspace.id}
                     workspaceName={workspace.name || ''}
-                    workspacePlan={workspace.plan || 'free'}
+                    workspacePlan={(workspace.plan || 'free') as WorkspacePlan}
+                    subscriptionStatus={(workspace.subscription_status || 'inactive') as SubscriptionStatus}
                 />
             </Suspense>
         </div>

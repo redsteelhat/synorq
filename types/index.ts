@@ -8,6 +8,7 @@ export interface Workspace {
   owner_id: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  subscription_status: 'inactive' | 'trialing' | 'active' | 'past_due' | 'unpaid' | 'canceled' | 'incomplete' | 'incomplete_expired';
   plan: Plan;
   created_at: string;
 }
@@ -39,6 +40,8 @@ export interface Task {
   workspace_id: string;
   title: string;
   tool_id: string | null;
+  client_tag: string | null;
+  project_tag: string | null;
   prompt_id: string | null;
   custom_prompt: string | null;
   status: TaskStatus;
@@ -58,6 +61,8 @@ export interface Output {
   input_tokens: number;
   output_tokens: number;
   cost_usd: number;
+  client_tag: string | null;
+  project_tag: string | null;
   model_used: string | null;
   duration_ms: number | null;
   error: string | null;

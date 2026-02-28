@@ -2,9 +2,10 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Header from '@/components/dashboard/Header';
 import StatCard from '@/components/dashboard/StatCard';
-import { DollarSign, Activity, Settings2 } from 'lucide-react';
+import { DollarSign, Activity, Settings2, Download, FileSpreadsheet } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import DailyCostChart from '@/components/costs/DailyCostChart';
+import Link from 'next/link';
 
 interface JoinOutput {
     cost_usd: string | number | null;
@@ -123,6 +124,22 @@ export default async function CostsPage() {
             <Header title="Maliyet Analizi" />
             <div className="flex-1 p-4 md:p-8 overflow-y-auto">
                 <div className="max-w-6xl mx-auto space-y-8">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 className="text-2xl font-semibold text-[#F1F5F9]">Maliyet Merkezi</h2>
+                            <p className="text-sm text-[#64748B]">Aylık harcama, etiket ve araç bazlı dağılım</p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <Link href={`/api/export/costs?workspaceId=${workspace.id}`} className="btn-secondary">
+                                <Download size={16} />
+                                Export CSV
+                            </Link>
+                            <Link href={`/api/export/client-summary?workspaceId=${workspace.id}`} className="btn-primary">
+                                <FileSpreadsheet size={16} />
+                                Download Client Report
+                            </Link>
+                        </div>
+                    </div>
 
                     {/* StatCards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
