@@ -163,7 +163,7 @@ export default async function PromptDetailPage({ params }: { params: { id: strin
                             {versionChain.map((v) => {
                                 const isActive = v.id === currentPrompt.id;
                                 return (
-                                    <div key={v.id} className={`flex items-start justify-between p-4 md:p-5 transition-colors ${isActive ? 'bg-indigo-500/5' : 'hover:bg-[#1E2A3A]/30'}`}>
+                                    <div key={v.id} className={`flex items-start justify-between p-4 md:p-5 transition-all duration-150 ${isActive ? 'bg-indigo-500/5' : 'hover:bg-[#1E2A3A]/30 hover:translate-x-[2px]'}`}>
                                         <div className="flex-1 min-w-0 pr-4">
                                             <div className="flex items-center gap-3 mb-1">
                                                 <span className={`px-2 py-0.5 rounded text-xs font-semibold shrink-0 border ${isActive ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' : 'bg-[#1E2A3A] text-[#64748B] border-[#2D3F55]'}`}>

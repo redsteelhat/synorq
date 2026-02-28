@@ -20,10 +20,10 @@ const iconColorMap = {
 
 export default function StatCard({ title, value, subtitle, icon: Icon, trend, iconColor = 'indigo' }: StatCardProps) {
     return (
-        <Card className="bg-[#0D1321] border-[#1E2A3A] hover:border-[#6366F130] hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all duration-200 h-full">
+        <Card className="group micro-lift animate-fade-scale bg-[#0D1321] border-[#1E2A3A] hover:border-[#6366F130] hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] h-full">
             <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
-                    <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', iconColorMap[iconColor])}>
+                    <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-105', iconColorMap[iconColor])}>
                         <Icon size={18} />
                     </div>
                     {trend && (

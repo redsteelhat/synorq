@@ -96,11 +96,11 @@ body::before {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-500 hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] disabled:cursor-not-allowed disabled:bg-indigo-600/50 disabled:shadow-none;
+    @apply inline-flex transform-gpu items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 will-change-transform shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:-translate-y-px hover:bg-indigo-500 hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-indigo-600/50 disabled:shadow-none disabled:transform-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-[#1E2A3A] bg-transparent px-4 py-2.5 text-sm text-[#64748B] transition-all duration-150 hover:border-[#2D3F55] hover:text-[#F1F5F9];
+    @apply inline-flex transform-gpu items-center justify-center gap-2 rounded-lg border border-[#1E2A3A] bg-transparent px-4 py-2.5 text-sm text-[#64748B] transition-all duration-150 will-change-transform hover:-translate-y-px hover:border-[#2D3F55] hover:text-[#F1F5F9] active:translate-y-0 active:scale-[0.99];
   }
 
   .btn-destructive {
@@ -116,15 +116,15 @@ body::before {
   }
 
   .field-input {
-    @apply w-full rounded-lg border border-[#1E2A3A] bg-[#0D1321] px-4 py-2.5 text-sm text-[#F1F5F9] placeholder:text-[#334155] transition-colors duration-150 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none disabled:opacity-50;
+    @apply w-full rounded-lg border border-[#1E2A3A] bg-[#0D1321] px-4 py-2.5 text-sm text-[#F1F5F9] placeholder:text-[#334155] transition-all duration-150 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none focus:bg-[#111827] disabled:opacity-50;
   }
 
   .field-select {
-    @apply w-full appearance-none rounded-lg border border-[#1E2A3A] bg-[#0D1321] px-4 py-2.5 pr-10 text-sm text-[#F1F5F9] transition-colors duration-150 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none disabled:opacity-50;
+    @apply w-full appearance-none rounded-lg border border-[#1E2A3A] bg-[#0D1321] px-4 py-2.5 pr-10 text-sm text-[#F1F5F9] transition-all duration-150 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none focus:bg-[#111827] disabled:opacity-50;
   }
 
   .field-textarea {
-    @apply w-full rounded-lg border border-[#1E2A3A] bg-[#080C14] px-4 py-3 text-sm font-mono text-[#F1F5F9] placeholder:text-[#334155] transition-colors duration-150 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none disabled:opacity-50;
+    @apply w-full rounded-lg border border-[#1E2A3A] bg-[#080C14] px-4 py-3 text-sm font-mono text-[#F1F5F9] placeholder:text-[#334155] transition-all duration-150 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none focus:bg-[#0D1321] disabled:opacity-50;
   }
 
   .empty-state {
@@ -133,6 +133,18 @@ body::before {
 
   .empty-state-icon {
     @apply mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-[#1E2A3A] bg-[#0D1321] text-[#334155];
+  }
+
+  .micro-lift {
+    @apply transform-gpu transition-all duration-200 will-change-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99];
+  }
+
+  .micro-lift-sm {
+    @apply transform-gpu transition-all duration-150 will-change-transform hover:-translate-y-px active:translate-y-0;
+  }
+
+  .row-hover {
+    @apply transition-all duration-150 hover:bg-[#111827]/50;
   }
 }
 
@@ -162,6 +174,11 @@ body::before {
   50% { border-color: rgba(99, 102, 241, 0.7); }
 }
 
+@keyframes fade-scale-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .animate-fade-in {
   animation: fade-in 0.6s ease-out both;
 }
@@ -185,6 +202,10 @@ body::before {
 .animate-shimmer {
   background-size: 200% auto;
   animation: shimmer 3s linear infinite;
+}
+
+.animate-fade-scale {
+  animation: fade-scale-in 0.45s ease-out both;
 }
 
 /* Custom scrollbar */

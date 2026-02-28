@@ -72,7 +72,7 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
                 </div>
 
                 {/* Recent Tasks */}
-                <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden">
+                <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden">
                     <div className="px-6 py-4 border-b border-[#1E2A3A] flex items-center justify-between">
                         <h3 className="text-[#F1F5F9] font-semibold text-sm">Recent Tasks</h3>
                         <Link href="/tasks" className="btn-secondary px-3 py-1.5 text-xs">
@@ -119,7 +119,7 @@ async function DashboardContent({ workspaceId, workspaceName, workspacePlan }: {
                                         const toolName = Array.isArray(task.ai_tools) ? task.ai_tools[0]?.display_name : task.ai_tools?.display_name;
 
                                         return (
-                                            <tr key={task.id} className="border-b border-[#1E2A3A]/50 hover:bg-[#111827]/50 transition-colors">
+                                            <tr key={task.id} className="border-b border-[#1E2A3A]/50 row-hover">
                                                 <td className="px-6 py-4">
                                                     <span className="font-medium text-[#F1F5F9]">{task.title}</span>
                                                 </td>

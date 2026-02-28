@@ -52,13 +52,13 @@ export default async function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm text-[#64748B]">
-            <a href="#features" className="hover:text-[#F1F5F9] transition-colors duration-200">
+            <a href="#features" className="transform-gpu hover:text-[#F1F5F9] transition-all duration-200 hover:-translate-y-px">
               Özellikler
             </a>
-            <a href="#how" className="hover:text-[#F1F5F9] transition-colors duration-200">
+            <a href="#how" className="transform-gpu hover:text-[#F1F5F9] transition-all duration-200 hover:-translate-y-px">
               Nasıl Çalışır
             </a>
-            <a href="#cta" className="hover:text-[#F1F5F9] transition-colors duration-200">
+            <a href="#cta" className="transform-gpu hover:text-[#F1F5F9] transition-all duration-200 hover:-translate-y-px">
               Fiyatlar
             </a>
           </div>
@@ -66,13 +66,13 @@ export default async function LandingPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="hidden sm:block text-[#64748B] hover:text-[#F1F5F9] text-sm transition-colors duration-200"
+              className="hidden sm:block text-[#64748B] hover:text-[#F1F5F9] text-sm transition-all duration-200 hover:-translate-y-px"
             >
               Giriş Yap
             </Link>
             <Link
               href="/signup"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.4)]"
+              className="transform-gpu bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:-translate-y-px active:scale-[0.99]"
             >
               Ücretsiz Başla
             </Link>
@@ -122,7 +122,7 @@ export default async function LandingPage() {
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-2 border border-[#1E2A3A] hover:border-[#2D3F55] bg-transparent hover:bg-[#111827] text-[#64748B] hover:text-[#F1F5F9] px-8 py-4 rounded-xl text-lg font-medium transition-all duration-200"
+              className="inline-flex transform-gpu items-center justify-center gap-2 border border-[#1E2A3A] hover:border-[#2D3F55] bg-transparent hover:bg-[#111827] text-[#64748B] hover:text-[#F1F5F9] px-8 py-4 rounded-xl text-lg font-medium transition-all duration-200 hover:-translate-y-px active:scale-[0.99]"
             >
               Demo İncele
             </Link>
@@ -266,10 +266,10 @@ export default async function LandingPage() {
               return (
                 <div
                   key={f.title}
-                  className="group bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 hover:border-[#6366F130] hover:shadow-[0_0_30px_rgba(99,102,241,0.05)] transition-all duration-300"
+                  className="group micro-lift bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 hover:border-[#6366F130] hover:shadow-[0_0_30px_rgba(99,102,241,0.05)]"
                 >
                   <div
-                    className={`inline-flex w-10 h-10 rounded-xl bg-gradient-to-br ${f.gradient} items-center justify-center mb-5 shadow-lg`}
+                    className={`inline-flex w-10 h-10 rounded-xl bg-gradient-to-br ${f.gradient} items-center justify-center mb-5 shadow-lg transition-transform duration-300 group-hover:scale-110`}
                   >
                     <Icon className="w-5 h-5 text-white" />
                   </div>
@@ -390,13 +390,13 @@ export default async function LandingPage() {
           </div>
           <p className="text-[#334155] text-sm">© 2025 Synorq. Tüm hakları saklıdır.</p>
           <div className="flex items-center gap-6 text-sm text-[#64748B]">
-            <a href="#" className="hover:text-[#F1F5F9] transition-colors">
+            <a href="#" className="hover:text-[#F1F5F9] transition-colors duration-200 hover:-translate-y-px inline-block">
               Gizlilik
             </a>
-            <a href="#" className="hover:text-[#F1F5F9] transition-colors">
+            <a href="#" className="hover:text-[#F1F5F9] transition-colors duration-200 hover:-translate-y-px inline-block">
               Şartlar
             </a>
-            <a href="#" className="hover:text-[#F1F5F9] transition-colors">
+            <a href="#" className="hover:text-[#F1F5F9] transition-colors duration-200 hover:-translate-y-px inline-block">
               İletişim
             </a>
           </div>

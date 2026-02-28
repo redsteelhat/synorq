@@ -88,10 +88,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                 href={href}
                                 onClick={onClose}
                                 className={cn(
-                                    'relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 group',
+                                    'relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 group transform-gpu',
                                     isActive
                                         ? 'bg-[#6366F115] border border-[#6366F130] text-[#F1F5F9] font-medium before:absolute before:left-0 before:h-4 before:w-[2px] before:rounded-full before:bg-indigo-500 before:top-1/2 before:-translate-y-1/2'
-                                        : 'text-[#64748B] hover:text-[#F1F5F9] hover:bg-[#111827] border border-transparent'
+                                        : 'text-[#64748B] hover:text-[#F1F5F9] hover:bg-[#111827] border border-transparent hover:translate-x-[2px]'
                                 )}
                             >
                                 <Icon size={18} className={cn(
@@ -118,7 +118,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </p>
                     <button
                         onClick={handleLogout}
-                        className="p-1.5 rounded-md text-[#64748B] hover:text-red-400 hover:bg-red-500/10 transition-colors duration-150"
+                        className="p-1.5 rounded-md text-[#64748B] hover:text-red-400 hover:bg-red-500/10 transition-all duration-150 hover:-translate-y-px"
                         title="Logout"
                     >
                         <LogOut size={16} />
@@ -151,7 +151,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 {isOpen && (
                     <button
                         onClick={onClose}
-                        className="md:hidden absolute top-4 right-4 p-2 text-[#64748B] hover:text-white"
+                        className="md:hidden absolute top-4 right-4 p-2 text-[#64748B] hover:text-white transition-all duration-150 hover:-translate-y-px"
                     >
                         <X size={20} />
                     </button>

@@ -84,19 +84,19 @@ export default function ToolCard({ tool }: { tool: ToolPreview }) {
     const keyPreview = tool.key_preview || '••••••••';
 
     return (
-        <div className={`bg-[#0D1321] border ${isActive ? 'border-[#6366F130]' : 'border-[#1E2A3A]'} hover:border-[#6366F130] rounded-xl p-5 transition-all duration-200 flex flex-col gap-4 relative overflow-hidden group`}>
+        <div className={`group micro-lift animate-fade-scale bg-[#0D1321] border ${isActive ? 'border-[#6366F130]' : 'border-[#1E2A3A]'} hover:border-[#6366F130] rounded-xl p-5 transition-all duration-200 flex flex-col gap-4 relative overflow-hidden`}>
             {/* Decorative glow */}
-            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-5 ${config.glowColor}`} />
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-5 transition-opacity duration-300 group-hover:opacity-10 ${config.glowColor}`} />
 
             <div className="flex justify-between items-start relative">
-                <div className={`w-11 h-11 rounded-xl ${config.iconBg} flex items-center justify-center`}>
+                <div className={`w-11 h-11 rounded-xl ${config.iconBg} flex items-center justify-center transition-transform duration-200 group-hover:scale-105`}>
                     <span className="font-mono text-xs font-semibold tracking-widest text-[#F1F5F9]">{config.monogram}</span>
                 </div>
 
                 <button
                     onClick={toggleActive}
                     disabled={loading}
-                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-[#0D1321] ${isActive ? 'bg-indigo-600 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-[#1E2A3A]'}`}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-[#0D1321] ${isActive ? 'bg-indigo-600 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-[#1E2A3A]'}`}
                 >
                     <span
                         aria-hidden="true"

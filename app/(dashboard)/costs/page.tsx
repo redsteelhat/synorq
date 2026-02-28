@@ -148,7 +148,7 @@ export default async function CostsPage() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Araç Bazlı Maliyet Tablosu */}
-                        <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 flex flex-col min-h-[400px]">
+                        <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 flex flex-col min-h-[400px]">
                             <h3 className="text-lg font-semibold text-[#F1F5F9] mb-6">Araç Bazlı Harcama</h3>
                             {breakdown.length === 0 ? (
                                 <div className="flex-1 flex items-center justify-center text-[#64748B]">Kayıtlı veri bulunamadı.</div>
@@ -164,7 +164,7 @@ export default async function CostsPage() {
                                         </thead>
                                         <tbody className="divide-y divide-[#1E2A3A]/50">
                                             {breakdown.map((item, i) => (
-                                                <tr key={i} className="hover:bg-[#111827]/50 transition-colors">
+                                                <tr key={i} className="row-hover">
                                                     <td className="px-4 py-4 text-[#F1F5F9] flex items-center gap-2">
                                                         <span className={`w-2 h-2 rounded-full ${getToolDotColor(item.name)}`} />
                                                         {item.name}
@@ -180,7 +180,7 @@ export default async function CostsPage() {
                         </div>
 
                         {/* Son 14 Gün Harcama Grafiği */}
-                        <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 flex flex-col min-h-[400px]">
+                        <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl p-6 flex flex-col min-h-[400px]">
                             <h3 className="text-lg font-semibold text-[#F1F5F9] mb-6">Son 14 Gün Maliyeti</h3>
                             <div className="flex-1 overflow-x-auto">
                                 <div className="grid min-w-[640px] grid-cols-14 gap-3 h-full items-end">
@@ -214,3 +214,4 @@ export default async function CostsPage() {
         </div>
     );
 }
+

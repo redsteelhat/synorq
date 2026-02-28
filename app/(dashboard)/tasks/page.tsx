@@ -59,7 +59,7 @@ export default async function TasksPage() {
                     </Link>
                 </div>
 
-                <div className="bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden max-w-6xl mx-auto flex flex-col min-h-[400px]">
+                <div className="animate-fade-scale bg-[#0D1321] border border-[#1E2A3A] rounded-xl overflow-hidden max-w-6xl mx-auto flex flex-col min-h-[400px]">
                     {!tasks || tasks.length === 0 ? (
                         <div className="m-6 empty-state flex-1 flex flex-col items-center justify-center">
                             <div className="empty-state-icon">
@@ -114,7 +114,7 @@ export default async function TasksPage() {
                                                 : task.ai_tools?.display_name;
 
                                             return (
-                                                <tr key={task.id} className="hover:bg-[#111827]/50 transition-colors group">
+                                                <tr key={task.id} className="group row-hover">
                                                     <td className="px-6 py-4">
                                                         <Link
                                                             href={`/tasks/${task.id}`}

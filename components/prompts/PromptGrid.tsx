@@ -80,7 +80,7 @@ export default function PromptGrid({ prompts }: { prompts: Prompt[] }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filtered.map(prompt => (
-                        <Link key={prompt.id} href={`/prompts/${prompt.id}`} className="group relative bg-[#0D1321] hover:bg-[#111827]/50 border border-[#1E2A3A] hover:border-[#6366F130] rounded-xl p-5 flex flex-col gap-3 transition-all duration-200">
+                        <Link key={prompt.id} href={`/prompts/${prompt.id}`} className="group relative micro-lift bg-[#0D1321] hover:bg-[#111827]/50 border border-[#1E2A3A] hover:border-[#6366F130] rounded-xl p-5 flex flex-col gap-3">
                             <div className="flex items-start justify-between gap-2">
                                 <h3 className="font-semibold text-[#F1F5F9] group-hover:text-indigo-400 transition-colors truncate">
                                     {prompt.name}
